@@ -98,8 +98,19 @@
 			</tr>
 	</c:if>
 	
-	
 	<c:forEach items="${observations}" var="obs" varStatus="status">
+		<c:if test="${status.first}">
+			<tr>
+				<td colspan="5" class="box"">
+					${encounter.encounterType}
+					(<a href="${pageContext.request.contextPath}/admin/forms/formEdit.form?formId=${encounter.form.formId}">#${encounter.form.formId}</a>) |
+					<openmrs:formatDate date="${encounter.encounterDatetime}" type="medium" /> |
+					${encounter.location} |
+					<a href="${pageContext.request.contextPath}/admin/users/user.form?userId=${encounter.provider.userId}">${encounter.provider.firstName} ${encounter.provider.middleName} ${encounter.provider.lastName}</a>
+				</td>
+			</tr>
+		</c:if>
+
 		<c:set var="field" value="${obsMap[obs.obsId]}"/>
 		<c:choose>
 			<c:when test="${obs.obsGroupId != null}">
@@ -148,10 +159,6 @@
 				</tr>
 			</c:otherwise>
 		</c:choose>
-		
-		<c:if test="${status.last}">
-			<tr><td colspan="5" class="box" style="height:0px; padding: 0px;"></td></tr>
-		</c:if>
 		
 	</c:forEach>
 	
