@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Beans to add to the current Application context definition -->
+  
+<beans>
+	
+    <bean id="flowsheetUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    	<property name="mappings">
+            <props>
+	            <prop key="module/Flowsheet/flowsheet.list">flowsheetList</prop>
+					
+			</props>
+		</property>
+	</bean>
+	
+	<!-- Controllers -->
+	
+	<bean id="flowsheetList" class="org.openmrs.module.flowsheet.web.controller.FlowsheetListController">
+		<property name="commandName"><value>encounters</value></property>
+		<property name="formView"><value>/module/Flowsheet/flowsheetList</value></property>
+		<property name="successView"><value>flowsheet.list</value></property>
+	</bean>
+	
+	<!-- /Controllers -->
+	
+	
+</beans>
