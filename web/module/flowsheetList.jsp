@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 
-<openmrs:require privilege="View Encounters" otherwise="/login.htm" redirect="/module/Flowsheet/flowsheet.list" />
+<openmrs:require privilege="View Encounters" otherwise="/login.htm" redirect="/module/flowsheet/flowsheet.list" />
 
 <%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
 
@@ -84,7 +84,7 @@
 				<a href="#" id="showDescription" onClick="return toggleVisibility(document, 'div', 'description')"><spring:message code="general.toggle.description"/></a> |
 				<a href="#" id="showVoided" onClick="return toggleRowVisibilityForClass('obs', 'voided', true);"><spring:message code="general.toggle.voided"/></a>
 			</span>
-			<b><spring:message code="Flowsheet.titleBox"/></b>
+			<b><spring:message code="flowsheet.titleBox"/></b>
 		</div>
 		
 		<div class="box">

@@ -12,14 +12,14 @@ public class FlowsheetActivator implements Activator {
 	 * @see org.openmrs.module.Activator#startup()
 	 */
 	public void startup() {
-		log.info("Starting FlowsheetModule");
+		log.info("Starting Flowsheet Module");
 	}
 	
 	/**
 	 *  @see org.openmrs.module.Activator#shutdown()
 	 */
 	public void shutdown() {
-		log.info("Shutting down FlowsheetModule");
+		log.info("Shutting down Flowsheet Module");
 	}
 	
 }

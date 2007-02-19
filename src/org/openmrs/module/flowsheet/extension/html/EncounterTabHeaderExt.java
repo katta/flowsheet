@@ -21,33 +21,7 @@ public class EncounterTabHeaderExt extends Extension {
 	
 	@Override
 	public String getOverrideContent(String bodyContent) {
-		return " &nbsp; <a href='module/Flowsheet/flowsheet.list?patientId=" + patientId + "'>View Patient Flowsheet</a><br/> <br/>";
-	}
-	
-}
-
-package org.openmrs.module.flowsheet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openmrs.module.Activator;
-
-public class FlowsheetActivator implements Activator {
-
-	private Log log = LogFactory.getLog(this.getClass());
-
-	/**
-	 * @see org.openmrs.module.Activator#startup()
-	 */
-	public void startup() {
-		log.info("Starting FlowsheetModule");
-	}
-	
-	/**
-	 *  @see org.openmrs.module.Activator#shutdown()
-	 */
-	public void shutdown() {
-		log.info("Shutting down FlowsheetModule");
+		return " &nbsp; <a href='module/flowsheet/flowsheet.list?patientId=" + patientId + "'>View Patient Flowsheet</a><br/> <br/>";
 	}
 	
 }
