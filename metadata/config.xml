@@ -16,7 +16,7 @@
 			out all patient observations in reverse chronological order
 	</description>
 
-	<activator>@MODULE_PACKAGE@.FlowsheetModuleActivator</activator>
+	<activator>@MODULE_PACKAGE@.FlowsheetActivator</activator>
 	
 	<updateURL>https://dev.openmrs.org/modules/download/flowsheet/update.rdf</updateURL>
 	<!-- /Base Module Properties -->
