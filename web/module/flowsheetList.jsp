@@ -77,7 +77,7 @@
 	<c:set var="obsGroups" value="${obsGroupsMap[encounter.encounterId]}" />
 	
 	<c:if test="${encStatus.first}">
-		<h2>${encounter.patient.patientName} - ${encounter.patient.patientIdentifier}</h2> <br/>
+		<h2>${encounter.patient.personName} - ${encounter.patient.patientIdentifier}</h2> <br/>
 	
 		<div class="boxHeader">
 			<span style="float: right">
@@ -106,7 +106,7 @@
 					(<a href="${pageContext.request.contextPath}/admin/forms/formEdit.form?formId=${encounter.form.formId}">#${encounter.form.formId}</a>) |
 					<openmrs:formatDate date="${encounter.encounterDatetime}" type="medium" /> |
 					${encounter.location} |
-					<a href="${pageContext.request.contextPath}/admin/users/user.form?userId=${encounter.provider.userId}">${encounter.provider.firstName} ${encounter.provider.middleName} ${encounter.provider.lastName}</a>
+					<a href="${pageContext.request.contextPath}/admin/users/user.form?userId=${encounter.provider.userId}">${encounter.provider.personName}</a>
 				</td>
 			</tr>
 		</c:if>
@@ -131,7 +131,7 @@
 							<c:if test="${groupObs.comment != null && groupObs.comment != ''}"><img src="${pageContext.request.contextPath}/images/note.gif" title="${groupObs.comment}" /></c:if>
 						</td>
 						<td style="white-space: nowrap;">
-							${groupObs.creator.firstName} ${groupObs.creator.lastName} -
+							${groupObs.creator.personName} -
 							<openmrs:formatDate date="${groupObs.dateCreated}" type="medium" />
 						</td>
 					</tr>
@@ -150,7 +150,7 @@
 						<c:if test="${obs.comment != null && obs.comment != ''}"><img src="${pageContext.request.contextPath}/images/note.gif" title="${obs.comment}" /></c:if>
 					</td>
 					<td style="white-space: nowrap;">
-						${obs.creator.firstName} ${obs.creator.lastName} -
+						${obs.creator.personName} -
 						<openmrs:formatDate date="${obs.dateCreated}" type="medium" />
 					</td>
 				</tr>
