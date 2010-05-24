@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.0//EN" "http://resources.openmrs.org/doctype/config-1.0.dtd">
+
+<module configVersion="1.0">
+	
+	<!-- Flowsheet Module Properties -->
+	<id>flowsheet</id>
+	<name>Flowsheet Module</name>
+	<version>1.0</version>
+	<package>org.openmrs.module.@MODULE_ID@</package>
+	<author>umashanthi</author>
+	<description>
+			
+	</description>
+	<activator>@MODULE_PACKAGE@.FlowsheetModuleActivator</activator>
+	<extension>
+	<point>org.openmrs.patientDashboardTab</point>
+		<class>@MODULE_PACKAGE@.extension.html.FlowsheetTabExt</class>
+	</extension>
+	<!-- /Flowsheet Module Properties -->
+	
+</module>
