@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="lib-common/spring-2.0.jar"/>
 	<classpathentry kind="lib" path="lib-common/openmrs-api-1.7.0.13514-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.7.0.13476-dev.jar"/>
+	<classpathentry kind="lib" path="lib-common/gwt-servlet.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
