@@ -1,20 +1,32 @@
 <?xml version="1.0"?>
 <!-- ********************************************************* -->
-<!-- ** Flowsheet Module                                    ** -->
+<!-- ** My First Module                                     ** -->
 <!-- **	                                                    ** -->
-<!-- ** @author umashanthi                                  ** -->
+<!-- ** @author Umashanthi                               	** -->
 <!-- ** @version 1.0                                        ** -->
 <!-- ********************************************************* -->
 <project name="Flowsheet" default="package-module">
-		
+	<!-- Arguments to gwtc and devmode targets -->
+	  <property name="gwt.args" value="" />
+
+	  <!-- Configure path to GWT SDK -->
+	  <property name="gwt.sdk" location="/home/umashanthi/GSoC/Programs/Libraries/gwt-2.0.3" />
+
+	  <path id="project.class.path">
+	    <pathelement location="web/module/resources/war/WEB-INF/classes"/>
+	    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+	    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+	    <!-- Add any additional non-server libs (such as JUnit) -->
+	    <fileset dir="web/module/resources/war/WEB-INF/lib" includes="**/*.jar"/>
+	  </path>
 	<!-- *********************************************************** -->
 	<!-- **                     TARGETS                           ** -->
 	<!-- *********************************************************** -->
-	<target name="init" description="initialization">
+	<target name="init" depends="libs" description="initialization">
 		<xmlcatalog id="common-dtds">
 	        <dtd 
-	            publicId="-//OpenMRS//DTD OpenMRS Config 1.0//EN"
-	            location="lib-common/config-1.0.dtd"/>
+	            publicId="-//OpenMRS//DTD OpenMRS Config 1.2//EN"
+	            location="lib-common/config-1.2.dtd"/>
 	    </xmlcatalog>
 		
 		<xmlproperty file="metadata/config.xml" >
@@ -44,6 +56,7 @@
 	<target name="clean" description="Delete build and dist directories">
 		<delete dir="dist" />
 		<delete dir="build" />
+		<delete dir="doc" />
 	</target>
 
 	<target name="compile-module" depends="init" description="Compiles the module">
@@ -98,10 +111,13 @@
 		
 		<!-- Create distributable jar file -->
 		<jar destfile="dist/${module.id}-${module.version}.omod">
-			<fileset dir="build" includes="**/*" />
+			<fileset dir="build">
+				<include name="**/*" />
+				<exclude name="**/*Test*" />
+			</fileset>
 		</jar>
 	</target>
-	
+
 	<target name="deploy-web" depends="package-module">
 		<property environment="env"/>
 		<copy todir="${env.CATALINA_HOME}/webapps/openmrs/WEB-INF/view/module/${module.id}">
@@ -119,5 +135,65 @@
 		</jar>
 	</target>
 
+	<target name="package-javadoc" depends="init" description="packages javadoc documentation into doc/javadoc.zip">
+		<mkdir dir="doc" />
+		<javadoc destdir="doc/javadoc" classpathref="classpath" author="true" version="true">
+			<packageset dir="src" defaultexcludes="yes">
+				<exclude name="**/.svn" />
+			</packageset>
+		</javadoc>
+		
+		<delete file="doc/javadoc.zip" />
+		<zip destfile="doc/javadoc.zip" basedir="doc/javadoc" />
+	</target>
+	 <target name="libs" description="Copy libs to WEB-INF/lib">
+	    <mkdir dir="web/module/resources/war/WEB-INF/lib" />
+	    <copy todir="web/module/resources/war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
+	 	<copy todir="web/module/resources/war/WEB-INF/lib" file="lib-common/openmrs-api-1.7.0.13514-dev.jar" />
+	 	<copy todir="web/module/resources/war/WEB-INF/lib" file="lib-common/web-openmrs-api-1.7.0.13476-dev.jar" />
+	 	
+	    <!-- Add any additional server libs that need to be copied -->
+	  </target>
+	<target name="gwtc" depends="javac" description="GWT compile to JavaScript">
+	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+	      <classpath>
+	        <pathelement location="src"/>
+	        <path refid="project.class.path"/>
+	      </classpath>
+	      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+	      <jvmarg value="-Xmx256M"/>
+	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+	      <arg line="${gwt.args}"/>
+	      <arg value="org.openmrs.module.flowsheet.gwt.Flowsheet"/>
+	    </java>
+	  </target>
+
+	  <target name="devmode" depends="javac" description="Run development mode">
+	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
+	      <classpath>
+	        <pathelement location="src"/>
+	        <path refid="project.class.path"/>
+	      </classpath>
+	      <jvmarg value="-Xmx256M"/>
+	      <arg value="-startupUrl"/>
+	      <arg value="web/module/myfirstmoduleForm.jsp"/>
+	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+	      <arg line="${gwt.args}"/>
+	      <arg value="org.openmrs.module.myfirstmodule.gwt.client.Flowsheet"/>
+	    </java>
+	  </target>
+	<target name="javac" depends="libs" description="Compile java source">
+	    <mkdir dir="web/module/resources/war/WEB-INF/classes"/>
+	    <javac srcdir="src" includes="**" encoding="utf-8"
+	        destdir="web/module/resources/war/WEB-INF/classes"
+	        source="1.5" target="1.5" nowarn="true"
+	        debug="true" debuglevel="lines,vars,source">
+	      <classpath refid="project.class.path"/>
+	    </javac>
+	    <copy todir="web/module/resources/war/WEB-INF/classes">
+	      <fileset dir="src" excludes="**/*.java"/>
+	    </copy>
+	  </target>
+	
 </project>
 
