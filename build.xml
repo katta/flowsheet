@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <!-- ********************************************************* -->
-<!-- ** My First Module                                     ** -->
+<!-- ** Flowsheet Module                                    ** -->
 <!-- **	                                                    ** -->
 <!-- ** @author Umashanthi                               	** -->
 <!-- ** @version 1.0                                        ** -->
 <!-- ********************************************************* -->
 <project name="Flowsheet" default="package-module">
 	<!-- Arguments to gwtc and devmode targets -->
+	<property file="build.properties" />
 	  <property name="gwt.args" value="" />
 
 	  <!-- Configure path to GWT SDK -->
-	  <property name="gwt.sdk" location="/home/umashanthi/GSoC/Programs/Libraries/gwt-2.0.3" />
+	  <!--property name="gwt.sdk" location="{gwt.sdk}" /-->
 
 	  <path id="project.class.path">
 	    <pathelement location="web/module/resources/war/WEB-INF/classes"/>
