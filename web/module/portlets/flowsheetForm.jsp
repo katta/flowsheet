@@ -46,9 +46,9 @@
     </noscript>
 	
     <h2>Patient Data</h2>
-	<table align="center">
+	<table align="center" style="table">
       <tr>
-        <td colspan="2" style="font-weight:bold;">Please enter patient details:</td>        
+        <td colspan="2" style="font-weight:bold;"></td>        
       </tr>
       <tr>
         <td id="webapp"></td>

@@ -180,7 +180,7 @@
 	      <arg value="web/module/myfirstmoduleForm.jsp"/>
 	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
 	      <arg line="${gwt.args}"/>
-	      <arg value="org.openmrs.module.myfirstmodule.gwt.client.Flowsheet"/>
+	      <arg value="org.openmrs.module.flowsheet.gwt.Flowsheet"/>
 	    </java>
 	  </target>
 	<target name="javac" depends="libs" description="Compile java source">
