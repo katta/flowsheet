@@ -5,5 +5,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("../../../moduleServlet/flowsheet/flowsheetService")
 public interface FlowsheetService extends RemoteService{
-	String[] getObsData(String patientId);
+	PatientObsCollection[] getObsData(String patientId);
 }
