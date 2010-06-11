@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="lib-common/openmrs-api-1.7.0.13514-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.7.0.13476-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/gwt-servlet.jar"/>
+	<classpathentry kind="lib" path="/home/umashanthi/GSoC/Programs/Libraries/gxt-2.1.1/gxt.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
