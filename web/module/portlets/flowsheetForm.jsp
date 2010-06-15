@@ -12,7 +12,7 @@
     <!--                                                               -->
     <!-- Consider inlining CSS to reduce the number of requested files -->
     <!--                                                               -->
-    <link type="text/css" rel="stylesheet" href="standard.css">
+    <link type="text/css" rel="stylesheet" href="/openmrs/moduleResources/flowsheet/Sample.css">
 
     <!--                                           -->
     <!-- Any title is fine                         -->
@@ -45,18 +45,19 @@
       </div>
     </noscript>
 	
-    <h2>Patient Data</h2>
-	<table align="center" style="table">
-      <tr>
-        <td colspan="2" style="font-weight:bold;"></td>        
-      </tr>
-      <tr>
-        <td id="webapp"></td>
-      </tr>
-      <tr>
-        <td colspan="2" style="color:red;" id="errorLabelContainer"></td>
-      </tr>
-    </table>
+<!--    <h2>~Patient Data</h2>-->
+    <div id="webapp" align="center"></div>
+<!--	<table align="center" style="table">-->
+<!--      <tr>-->
+<!--        <td colspan="2" style="font-weight:bold;"></td>        -->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <td id="webapp"></td>-->
+<!--      </tr>-->
+<!--      <tr>-->
+<!--        <td colspan="2" style="color:red;" id="errorLabelContainer"></td>-->
+<!--      </tr>-->
+<!--    </table>-->
     
   </body>
 </html>
