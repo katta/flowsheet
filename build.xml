@@ -153,7 +153,6 @@
 	    <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
 	 	<copy todir="war/WEB-INF/lib" file="lib-common/openmrs-api-1.7.0.13514-dev.jar" />
 	 	<copy todir="war/WEB-INF/lib" file="lib-common/web-openmrs-api-1.7.0.13476-dev.jar" />
-	 	
 	    <!-- Add any additional server libs that need to be copied -->
 	  </target>
 	<target name="gwtc" depends="javac" description="GWT compile to JavaScript">

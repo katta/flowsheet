@@ -11,9 +11,11 @@
 
     <!--                                                               -->
     <!-- Consider inlining CSS to reduce the number of requested files -->
-    <!--                                                               -->
+    <!--           
+                                                        -->
+   <link rel="stylesheet" type="text/css" href="/openmrs/moduleResources/flowsheet/gxt-all.css" />
     <link type="text/css" rel="stylesheet" href="/openmrs/moduleResources/flowsheet/Sample.css">
-
+   
     <!--                                           -->
     <!-- Any title is fine                         -->
     <!--                                           -->
