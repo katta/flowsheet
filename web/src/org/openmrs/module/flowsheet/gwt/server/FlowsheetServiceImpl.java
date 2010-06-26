@@ -78,16 +78,25 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	// java.util.Date toDate,
 	// boolean includeVoidedObs)
 	public List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate) {
+			Date endDate, List<Integer> conceptIds) {
 		List<UIObs> result = new ArrayList<UIObs>();
 		ObsService service = Context.getObsService();
 		List<Person> patientIdList = new ArrayList<Person>();
 		Patient patient = new Patient(Integer.valueOf(patientId));
 		patientIdList.add(patient);
-
+		List<Concept> conceptList;
+		if (conceptIds != null) {
+			conceptList = new ArrayList<Concept>();
+			for(Integer id:conceptIds){
+			conceptList.add(new Concept(id));
+			}
+		} else {
+			conceptList = null;
+		}
 		// retrieve all observations for this person
-		List<Obs> obsList = service.getObservations(patientIdList, null, null,
-				null, null, null, null, null, null, startDate, endDate, false);
+		List<Obs> obsList = service.getObservations(patientIdList, null,
+				conceptList, null, null, null, null, null, null, startDate,
+				endDate, false);
 		for (Obs obs : obsList) {
 			UIObs uiObs = new UIObs();
 			if (obs.getId() != null) {
@@ -113,17 +122,17 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 			if (patient.getDateVoided() != null) {
 				uiObs.setEndedDate(patient.getDateVoided());
 			}
-			Concept concept;
-			if ((concept = obs.getConcept()) != null) {
+			Concept concept1;
+			if ((concept1 = obs.getConcept()) != null) {
 				UIConcept uiConcept = new UIConcept();
-				if (concept.getId() != null) {
-					uiConcept.setConceptId(concept.getId().toString());
+				if (concept1.getId() != null) {
+					uiConcept.setConceptId(concept1.getId().toString());
 				}
-				if (concept.getDisplayString() != null) {
-					uiConcept.setDisplayName(concept.getDisplayString());
+				if (concept1.getDisplayString() != null) {
+					uiConcept.setDisplayName(concept1.getDisplayString());
 				}
 
-				Collection<ConceptAnswer> answers = concept.getAnswers();
+				Collection<ConceptAnswer> answers = concept1.getAnswers();
 				List<String> conceptAns = new ArrayList<String>();
 				if (answers != null) {
 					for (ConceptAnswer ans : answers) {
@@ -137,26 +146,26 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 					}
 				}
 				uiConcept.setAnswers(conceptAns);
-				if (concept.getConceptClass() != null
-						&& concept.getConceptClass().getName() != null) {
-					uiConcept.setConceptClass(concept.getConceptClass()
+				if (concept1.getConceptClass() != null
+						&& concept1.getConceptClass().getName() != null) {
+					uiConcept.setConceptClass(concept1.getConceptClass()
 							.getName());
 				}
-				if (concept.getDescription() != null
-						&& concept.getDescription().getDescription() != null) {
-					uiConcept.setDescription(concept.getDescription()
+				if (concept1.getDescription() != null
+						&& concept1.getDescription().getDescription() != null) {
+					uiConcept.setDescription(concept1.getDescription()
 							.getDescription());
 				}
-				uiConcept.setComplex(concept.isComplex());
-				uiConcept.setNumeric(concept.isNumeric());
-				uiConcept.setSet(concept.isSet());
-				if (concept.getDatatype() != null
-						&& concept.getDatatype().getName() != null) {
-					uiConcept.setDataType(concept.getDatatype().getName());
+				uiConcept.setComplex(concept1.isComplex());
+				uiConcept.setNumeric(concept1.isNumeric());
+				uiConcept.setSet(concept1.isSet());
+				if (concept1.getDatatype() != null
+						&& concept1.getDatatype().getName() != null) {
+					uiConcept.setDataType(concept1.getDatatype().getName());
 				}
-				if (concept.getDatatype().isNumeric()) {
+				if (concept1.getDatatype().isNumeric()) {
 					ConceptNumeric conceptNumeric = Context.getConceptService()
-							.getConceptNumeric(concept.getConceptId());
+							.getConceptNumeric(concept1.getConceptId());
 					if (conceptNumeric != null) {
 						if (conceptNumeric.getUnits() != null) {
 							uiConcept.setUnits(conceptNumeric.getUnits());
@@ -208,14 +217,21 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return result;
 	}
 
-	public Map<Integer, String> getConceptList() {
+	public Map<Integer, String> getConceptList(String patientId) {
 		Map<Integer, String> conceptMap = new HashMap<Integer, String>();
-		ConceptService conceptService = Context.getConceptService();
-		List<Concept> conceptList = conceptService.getAllConcepts();
-		for (Concept concept : conceptList) {
-			if(concept!=null && concept.getId()!=null && concept.getDisplayString()!=null)
-			conceptMap.put(concept.getId(), concept.getDisplayString());
+		ObsService service = Context.getObsService();
+
+		// retrieve all observations for this person
+		List<Obs> obsList = service.getObservationsByPerson(new Person(Integer
+				.valueOf(patientId)));
+		for (Obs obs : obsList) {
+			Concept concept = obs.getConcept();
+			if (concept != null && concept.getId() != null
+					&& concept.getDisplayString() != null) {
+				conceptMap.put(concept.getId(), concept.getDisplayString());
+			}
 		}
+
 		return conceptMap;
 	}
 

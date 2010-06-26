@@ -2,7 +2,7 @@
 
 /*  */
 .table {
-	border: 3px solid silver;
+	
 	padding: 2ex;
 	margin-bottom: 6px;
 }
@@ -15,7 +15,7 @@
 
 .leftPanel {
 	background: #E0E0F0;
-	width: 20%;
+	width: 30%;
 }
 
 .topLabel {

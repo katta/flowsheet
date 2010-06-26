@@ -190,4 +190,5 @@ public class UIConcept implements IsSerializable{
 		this.isNamed = isNamed;
 	}
 
+
 }
