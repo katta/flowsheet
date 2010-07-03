@@ -2,7 +2,6 @@
 
 /*  */
 .table {
-	
 	padding: 2ex;
 	margin-bottom: 6px;
 }
@@ -15,7 +14,7 @@
 
 .leftPanel {
 	background: #E0E0F0;
-	width: 30%;
+	width: 20%;
 }
 
 .topLabel {
@@ -48,6 +47,67 @@
 	border-width: 0.7px;
 }
 
-.hiNormal{
+.hiNormal {
 	color: red;
+}
+
+.label1 {
+ font-size: 12px;
+ font-weight: bold;
+ font-style: oblique;
+ font-family: sans-serif;	
+ }
+ 
+ .label2 {
+ font-size: 10px;
+ font-weight: bold;
+ font-family: sans-serif;	
+ white-space: pre;
+ }
+
+.gwt-SliderBar-shell {
+	border-style: inset;
+	border-width: 1px;
+	background-color: white;
+}
+
+.gwt-SliderBar-line {
+	border-style: outset;
+	border-width: 1px;
+	background-color: #EEE;
+	overflow: hidden;
+}
+
+.gwt-SliderBar-knob {
+	z-index: 1;
+	cursor: pointer;
+}
+
+.gwt-SliderBar-label {
+	font-size: 8pt;
+	cursor: default;
+	font-weight: bold;
+	padding-left: 0em;
+}
+
+.gwt-SliderBar-label.dimm {
+	color: #CCC;
+	font-weight: normal;
+}
+
+.gwt-SliderBar-tick {
+	width: 1px;
+	height: 5px;
+	background: black;
+	overflow: hidden;
+}
+
+.gwt-SliderBar-tick.dimm {
+	width: 1px;
+	background: #CCC;
+}
+
+.gwt-SliderBar-line-sliding {
+	background-color: #A00;
+	cursor: pointer;
 }

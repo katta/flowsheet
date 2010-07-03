@@ -1,167 +1,207 @@
 package org.openmrs.module.flowsheet.gwt.client;
 
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
+import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.charts.client.Chart;
+import com.extjs.gxt.charts.client.model.ChartModel;
+import com.extjs.gxt.charts.client.model.ToolTip;
+import com.extjs.gxt.charts.client.model.ToolTip.MouseStyle;
+import com.extjs.gxt.charts.client.model.axis.XAxis;
+import com.extjs.gxt.charts.client.model.axis.YAxis;
+import com.extjs.gxt.charts.client.model.charts.LineChart;
+import com.extjs.gxt.charts.client.model.charts.dots.Star;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
-import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseUpEvent;
+import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
 
 public class Flowsheet implements EntryPoint {
 	private VerticalPanel rightPanel = new VerticalPanel();
 	private VerticalPanel mainPanel = new VerticalPanel();
 	private Label resultLabel = new Label();
 	private FlexTable table = new FlexTable();
-	private FormPanel subPanel = new FormPanel();
+	private VerticalPanel subPanel = new VerticalPanel();
 	private VerticalPanel topPanel = new VerticalPanel();
-	private HorizontalPanel bottomPanel = new HorizontalPanel();
+	private DockPanel bottomPanel = new DockPanel();
 	private VerticalPanel leftPanel = new VerticalPanel();
 	private Label topLabel = new Label();
-	DateField startDatePicker = new DateField();
-	final Label text = new Label();
-	DateField endDatePicker = new DateField();
-	Label label1 = new Label("Select Start Date");
-	Label label2 = new Label("Select End Date");
-	ListBox conceptList = new ListBox(true);
-	private Integer[] patientConcepts;
-	CheckBoxGroup conceptGroup = new CheckBoxGroup();
-	CheckBox conceptCheckBox = new CheckBox();
-	FormPanel formPanel = new FormPanel();
-	FormData formData = new FormData();
-	private String[] patientConceptNames;
-	private List<Integer> selectedIds = new ArrayList<Integer>();
-	private boolean endDate = false;
-	private boolean startDate = false;
+	private CheckBoxGroup conceptGroup = new CheckBoxGroup();
+	private CheckBox conceptCheckBox = new CheckBox();
+	private FormPanel formPanel = new FormPanel();
+	private FormData formData = new FormData();
 	private int sendConceptCount = 0;
 	private int currentConceptCount = 0;
-
+	private UINumericData[] numericData = null;
+	private Chart lchart = null;
+	private Slider2Bar slider = null;
+	private Label selectedDatesLabel = new Label();
+	private String[][] conceptTypeData = null;
+	private String patientId;
+	private List<Integer> selectedConnceptTypes = new ArrayList<Integer>();
+	private boolean isClearSelected = false;
+	private boolean isSelectAllSelected = false;
+	private FlowsheetServiceAsync service=null;
 	public void onModuleLoad() {
+		patientId = com.google.gwt.user.client.Window.Location
+				.getParameter("patientId");
 		// Top Panel
 		topLabel.setText("Patient History");
 		topLabel.setStyleName("topLabel");
 		topLabel.setWidth("100%");
 		topPanel.add(topLabel);
 		topPanel.getElement().getStyle().setBorderColor("#8FABC7");
-		// topPanel.setBorderWidth(1);
 		topPanel.setWidth("100%");
 		topPanel.setStyleName("topPanel");
 		topPanel.setWidth("100%");
 		mainPanel.add(topPanel);
 		// End of Top Panel
+		// Left side Form Panel
 		formPanel = new FormPanel();
 		formPanel.setFrame(true);
 		formPanel.setHeading("Filtering Options");
 		formPanel.setLabelWidth(100);
-		// Left Panel
-		startDatePicker.setFieldLabel("Select Start Date");
-		formPanel.add(startDatePicker);
-		endDatePicker.setFieldLabel("Select End Date");
-		formPanel.add(endDatePicker);
-		startDatePicker.getDatePicker().addListener(Events.Select,
-				new Listener<ComponentEvent>() {
-
-					public void handleEvent(ComponentEvent be) {
-						startDate = true;
-						if (endDate) {
-							getResponse(startDatePicker.getDatePicker()
-									.getValue(), endDatePicker.getDatePicker()
-									.getValue(), null);
-						} else {
-							getResponse(startDatePicker.getDatePicker()
-									.getValue(), null, null);
-
-						}
-					}
-
-				});
-		endDatePicker.getDatePicker().addListener(Events.Select,
-				new Listener<ComponentEvent>() {
-
-					public void handleEvent(ComponentEvent be) {
-						endDate = true;
-						if (startDate) {
-							getResponse(startDatePicker.getDatePicker()
-									.getValue(), endDatePicker.getDatePicker()
-									.getValue(), null);
-						} else {
-							getResponse(null, endDatePicker.getDatePicker()
-									.getValue(), null);
-
-						}
-					}
-
-				});
-
-		formPanel.add(new Label("Filter By Concept"));
-		conceptList.addChangeHandler(new ChangeHandler() {
-
-			public void onChange(ChangeEvent event) {
-				selectedIds
-						.add(patientConcepts[conceptList.getSelectedIndex()]);
-				getResponse(null, null, selectedIds);
+		Label dateRangeLabel = new Label("Select Date Range: ");
+		dateRangeLabel.setStyleName("label1");
+		formPanel.add(dateRangeLabel);
+		HorizontalPanel dateLablesPanel = new HorizontalPanel();
+		dateLablesPanel.setSpacing(5);
+		selectedDatesLabel.setStyleName("label2");
+		dateLablesPanel.add(selectedDatesLabel);
+		formPanel.add(dateLablesPanel);
+		service = GWT.create(FlowsheetService.class);
+		AsyncCallback<String[][]> callback1 = new AsyncCallback<String[][]>() {
+			public void onFailure(Throwable caught) {
+				resultLabel.setText(caught.getMessage());
 			}
 
-		});
+			public void onSuccess(String[][] result) {
+				conceptTypeData = result;
+				final CheckBoxGroup group = new CheckBoxGroup();
+				group.setOrientation(Orientation.VERTICAL);
+				group.setHideLabel(true);
+				int index = 0;
+				for (String entry : result[0]) {
+					CheckBox c1 = new CheckBox();
+					c1.setBoxLabel(result[1][index++]);
+					c1.setValue(true);
+					c1.setValueAttribute((result[0][index - 1]).toString());
+					selectedConnceptTypes.add(Integer
+							.valueOf(c1.getValueAttribute()));
+					c1.addListener(Events.Change, new Listener<BaseEvent>() {
 
-		formPanel.add(conceptList);
-		Button selectAllConceptsButton = new Button("Select All");
+						@Override
+						public void handleEvent(BaseEvent be) {
 
-		selectAllConceptsButton.addClickHandler(new ClickHandler() {
+							CheckBox option = (CheckBox) be.getSource();
 
-			public void onClick(ClickEvent arg0) {
-				int totItems = conceptList.getItemCount();
-				selectedIds = new ArrayList<Integer>();
-				for (int index = 0; index < totItems; index++) {
-					conceptList.setItemSelected(index, true);
-					// selectedIds.add(patientConcepts[index]);
+							if (option.getValue()) {
+								selectedConnceptTypes.add(Integer
+										.valueOf(option.getValueAttribute()));
+								if (!(isClearSelected || isSelectAllSelected)) {
+									getResponse(null, null,
+											selectedConnceptTypes);
+								}
+							} else {
+								selectedConnceptTypes.remove(Integer
+										.valueOf(option.getValueAttribute()));
+								if (!(isClearSelected || isSelectAllSelected)) {
+									getResponse(null, null,
+											selectedConnceptTypes);
+								}
+							}
+						}
+
+					});
+					group.add(c1);
 				}
-				getResponse(null, null, null);
+				Label resultTypeLabel = new Label("Result Types");
+				resultTypeLabel.setStyleName("label1");
+				formPanel.add(resultTypeLabel);
+				Button selectAllButton = new Button("Select All");
+				selectAllButton
+						.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+							@Override
+							public void componentSelected(ButtonEvent ce) {
+								isSelectAllSelected = true;
+								List<Field<?>> options = (List<Field<?>>) group
+										.getAll();
+								for (Field<?> option : options) {
+									CheckBox opt = (CheckBox) option;
+									opt.setValue(true);
+									selectedConnceptTypes.add(Integer
+											.valueOf(opt.getValueAttribute()));
+								}
+								getResponse(null, null, selectedConnceptTypes);
+								isSelectAllSelected = false;
+							}
+
+						});
+				Button clearButton = new Button("Clear");
+				clearButton
+						.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+							@Override
+							public void componentSelected(ButtonEvent ce) {
+								isClearSelected = true;
+								List<CheckBox> options = group.getValues();
+								for (CheckBox option : options) {
+									option.setValue(false);
+									selectedConnceptTypes.remove(Integer
+											.valueOf(option.getValueAttribute()));
+								}
+								rightPanel.clear();
+								isClearSelected = false;
+							}
+						});
+				HorizontalPanel buttonPanel = new HorizontalPanel();
+				buttonPanel.setSpacing(10);
+				buttonPanel.add(selectAllButton);
+				buttonPanel.add(clearButton);
+				formPanel.add(buttonPanel);
+				formPanel.add(group);
 			}
-
-		});
-		HorizontalPanel buttonPanel = new HorizontalPanel();
-		buttonPanel.add(selectAllConceptsButton);
-		Button conceptFilterClearButton = new Button("Clear");
-		conceptFilterClearButton.addClickHandler(new ClickHandler() {
-
-			public void onClick(ClickEvent arg0) {
-				selectedIds = new ArrayList<Integer>();
-			}
-
-		});
-		buttonPanel.setSpacing(10);
-		buttonPanel.add(conceptFilterClearButton);
-		formPanel.add(buttonPanel);
-		leftPanel.add(formPanel);
+		};
+		service.getConceptClassList(patientId, null, null, callback1);
+				leftPanel.add(formPanel);
 		leftPanel.setHeight("100%");
-		leftPanel.setStyleName("leftPanel");
 		leftPanel.add(resultLabel);
-		// bottomPanel.add(leftPanel);
-		String patientId = com.google.gwt.user.client.Window.Location
-				.getParameter("patientId");
+
 		FlowsheetServiceAsync serviceAsync = GWT.create(FlowsheetService.class);
 		AsyncCallback<Date[]> callback = new AsyncCallback<Date[]>() {
 			public void onFailure(Throwable caught) {
@@ -169,48 +209,93 @@ public class Flowsheet implements EntryPoint {
 			}
 
 			public void onSuccess(Date[] range) {
-				if (range[0] != null) {
-					startDatePicker.setMaxValue(range[0]);
-					endDatePicker.setMaxValue(range[0]);
-					endDatePicker.setValue(range[0]);
+			
+				slider = new Slider2Bar(range[1].getTime(), range[0].getTime(),
+						(43200), true);
 
-				}
-				if (range[1] != null) {
-					startDatePicker.setMinValue(range[1]);
-					endDatePicker.setMinValue(range[1]);
-					startDatePicker.setValue(range[1]);
-				}
+				slider.setCurrent1Value(range[1].getTime(), true);
+				slider.setCurrent2Value(range[0].getTime(), true);
+				String startDate = slider.getCurrent1DateValue().toString();
+				String endDate = slider.getCurrent2DateValue().toString();
+				selectedDatesLabel.setText(startDate.substring(4, 10)
+						+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+						+ endDate.substring(27));
+				slider.setNumTicks(0);
+				slider.setNumLabels(2);
+				slider.setLineWidth(200);
+				slider.setHeight("20px");
+				slider.setWidth("500px");
+				slider.setNotifyOnMouseUp(true);
+				slider.getKnob2Image().addMouseUpHandler(new MouseUpHandler() {
+					public void onMouseUp(MouseUpEvent arg0) {
+						Slider2Bar bar = slider;
+						String startDate = bar.getCurrent1DateValue().toString();
+						String endDate = bar.getCurrent2DateValue().toString();
+						selectedDatesLabel.setText(startDate.substring(4, 10)
+								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+								+ endDate.substring(27));
+						getResponse(bar.getCurrent1DateValue(),
+								bar.getCurrent2DateValue(), null);
+					}
+				});
+				slider.getKnob1Image().addMouseUpHandler(new MouseUpHandler() {
+					public void onMouseUp(MouseUpEvent arg0) {
+						Slider2Bar bar = slider;
+						String startDate = bar.getCurrent1DateValue().toString();
+						String endDate = bar.getCurrent2DateValue().toString();
+						selectedDatesLabel.setText(startDate.substring(4, 10)
+								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+								+ endDate.substring(27));
+						getResponse(bar.getCurrent1DateValue(),
+								bar.getCurrent2DateValue(), null);
+					}
+				});
+				
+				slider.getKnob1Image().addMouseMoveHandler(new MouseMoveHandler(){
+
+					@Override
+					public void onMouseMove(MouseMoveEvent event) {
+						Slider2Bar bar=slider;
+						String startDate = bar.getCurrent1DateValue().toString();
+						String endDate = bar.getCurrent2DateValue().toString();
+						selectedDatesLabel.setText(startDate.substring(4, 10)
+								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+								+ endDate.substring(27));
+						
+					}
+					
+				});
+				slider.getKnob2Image().addMouseMoveHandler(new MouseMoveHandler(){
+
+					@Override
+					public void onMouseMove(MouseMoveEvent event) {
+						Slider2Bar bar=slider;
+						String startDate = bar.getCurrent1DateValue().toString();
+						String endDate = bar.getCurrent2DateValue().toString();
+						selectedDatesLabel.setText(startDate.substring(4, 10)
+								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+								+ endDate.substring(27));
+						
+					}
+					
+				});
+			
+				formPanel.insert(slider, 1);
 			}
 		};
 		serviceAsync.getDateRange(patientId, callback);
-		AsyncCallback<Map<Integer, String>> getListCallback = new AsyncCallback<Map<Integer, String>>() {
-			public void onFailure(Throwable caught) {
-				resultLabel.setText(caught.getMessage());
-			}
-
-			public void onSuccess(Map<Integer, String> concepts) {
-				int index = 0;
-				patientConcepts = new Integer[concepts.size()];
-				patientConceptNames = new String[concepts.size()];
-				for (Integer id : concepts.keySet()) {
-					conceptList.addItem(concepts.get(id));
-					patientConceptNames[index] = concepts.get(id);
-					patientConcepts[index++] = id;
-
-				}
-
-			}
-		};
-		serviceAsync.getConceptList(patientId, getListCallback);
 		bottomPanel.setWidth("100%");
 		mainPanel.add(bottomPanel);
 		mainPanel.setWidth("100%");
-		RootPanel.get("webapp").add(mainPanel);
 		getResponse(null, null, null);
 	}
 
 	private void getResponse(final Date startDate, final Date endDate,
 			final List<Integer> conceptId) {
+		if(conceptId!=null && conceptId.size()==0){
+			// No concept filtering option selected
+			rightPanel.clear();
+		}
 		String patientId = com.google.gwt.user.client.Window.Location
 				.getParameter("patientId");
 		if (conceptId != null) {
@@ -223,41 +308,140 @@ public class Flowsheet implements EntryPoint {
 			}
 
 			public void onSuccess(List<UIObs> result) {
-				currentConceptCount = selectedIds.size();
+				currentConceptCount = selectedConnceptTypes.size();
 				if (conceptId == null
 						|| sendConceptCount == currentConceptCount) {
 					showData(result);
+					RootPanel.get("webapp").add(mainPanel);
 				} else {
-					getResponse(startDate, endDate, selectedIds);
+					getResponse(startDate, endDate, selectedConnceptTypes);
 				}
 			}
 		};
+		
 		serviceAsync.getPatientObsData(patientId, startDate, endDate,
 				conceptId, callback);
 	}
 
 	private void showData(List<UIObs> data) {
+		if (data == null) {
+			rightPanel.clear();
+		}
 		int index = 0;
 		Date obsDate = null;
-		Date dateObsStarted = null;
 		if (bottomPanel.getWidgetIndex(rightPanel) >= 0) {
 			bottomPanel.remove(rightPanel);
 		}
 		rightPanel = new VerticalPanel();
-		VerticalPanel inPanel = new VerticalPanel();
+		FormPanel inPanel = new FormPanel();
 		for (UIObs obs : data) {
 
 			if (obsDate == null
 					|| !(obsDate.toString().equals(obs.getObsDateTime()
 							.toString()))) {
 				table = new FlexTable();
-				inPanel = new VerticalPanel();
-				subPanel = new FormPanel();
-				subPanel.setWidth("100%");
-				subPanel.setHeading(obs.getObsDateTime().toString().substring(
-						0, 10));
+				table.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent evt) {
+						final FlexTable tab = (FlexTable) evt.getSource();
+						Cell clickedCell = tab.getCellForEvent(evt);
+						final int rowIndex = clickedCell.getRowIndex();
+						final Window window = new Window();
+						window.setSize(500, 300);
+						window.setPlain(true);
+						window.setModal(true);
+						window.setBlinkModal(true);
+						window.setHeading("Patient Observation Details");
+						window.setLayout(new FitLayout());
+						window.setMaximizable(true);
+						final FormPanel form = new FormPanel();
+						form.setScrollMode(Scroll.AUTO);
+						String patientIdValue = com.google.gwt.user.client.Window.Location
+								.getParameter("patientId");
+						final Integer conceptId = Integer.valueOf(tab.getText(
+								rowIndex, 1));
+						Date dateValue = new Date(Long.valueOf(tab
+								.getText(0, 0)));
+						final boolean isNumeric = Boolean.valueOf(tab.getText(
+								rowIndex, 2));
 
-				index = 0;
+						final Button graphBtn = new Button("Show History");
+						form.setHeading(dateValue.toString());
+						graphBtn
+								.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+									public void componentSelected(ButtonEvent ce) {
+
+										FlowsheetServiceAsync serviceAsync = GWT
+												.create(FlowsheetService.class);
+
+										AsyncCallback<UINumericData[]> newCallback = new AsyncCallback<UINumericData[]>() {
+											public void onFailure(
+													Throwable caught) {
+												resultLabel.setText(caught
+														.getMessage());
+											}
+
+											public void onSuccess(
+													UINumericData[] result) {
+												numericData = result;
+												lchart = getGraph(Integer
+														.valueOf(tab.getText(
+																rowIndex, 1)));
+												final Window graphWindow = new Window();
+												graphWindow.setSize(500, 300);
+												graphWindow.setPlain(true);
+												graphWindow.setModal(true);
+												graphWindow.setBlinkModal(true);
+												graphWindow
+														.setHeading("Observation History");
+												graphWindow
+														.setLayout(new FitLayout());
+												graphWindow
+														.setMaximizable(true);
+												graphWindow.add(lchart);
+												graphWindow.show();
+											}
+										};
+										serviceAsync.getNumericValueHistory(
+												patientId, conceptId, null,
+												null, newCallback);
+
+									}
+
+								});
+
+						FlowsheetServiceAsync serviceAsync = GWT
+								.create(FlowsheetService.class);
+
+						AsyncCallback<String[]> callback = new AsyncCallback<String[]>() {
+							public void onFailure(Throwable caught) {
+								resultLabel.setText(caught.getMessage());
+							}
+
+							public void onSuccess(String[] result) {
+								for (String data : result) {
+									form.add(new Text(data));
+								}
+
+								window.add(form);
+								if (isNumeric) {
+									form.add(graphBtn);
+								}
+								window.show();
+							}
+						};
+						serviceAsync.getPatientObsDetails(patientIdValue,
+								dateValue, conceptId, callback);
+					}
+				});
+				inPanel = new FormPanel();
+				subPanel = new VerticalPanel();
+				subPanel.setWidth("100%");
+				inPanel.setHeading(obs.getObsDateTime().toString().substring(0,
+						10));
+				table.setText(0, 0, obs.getObsDateTime().getTime() + "");
+				table.getRowFormatter().setVisible(0, false);
+				index = 1;
 			}
 
 			if (obs.getConcepts() != null
@@ -274,7 +458,7 @@ public class Flowsheet implements EntryPoint {
 					if (obs.getConcepts().getHiNormal() != null
 							&& obs.getNumericValue() >= obs.getConcepts()
 									.getHiNormal()) {
-						text = text + "            ***Greater than Hi-Normal";
+						text = text + "            ***";
 						Label highLabel = new Label();
 						highLabel.setStyleName("hiNormal");
 						highLabel.setText(text);
@@ -287,22 +471,31 @@ public class Flowsheet implements EntryPoint {
 
 				}
 
-				if (obs.getBooleanValue() != null) {
+				else if (obs.getBooleanValue() != null) {
 					if (obs.getBooleanValue()) {
 						table.setText(index++, 0, conceptName + " - Yes");
 					} else {
 						table.setText(index++, 0, conceptName + " - No");
 
 					}
+				} else if (obs.getStringValue() != null) {
+					table.setText(index++, 0, conceptName + " - "
+							+ obs.getStringValue());
 				}
-				if (obs.getConceptDescription() != null) {
-					table.setText(index++, 0, obs.getConceptDescription());
+				if (index >= 2) {
+					table.setText(index - 1, 1, obs.getConcepts()
+							.getConceptId());
+					table.getCellFormatter().setVisible(index - 1, 1, false);
+					boolean isNumeric = obs.getNumericValue() != null ? true
+							: false;
+					table.setText(index - 1, 2, isNumeric + "");
+					table.getCellFormatter().setVisible(index - 1, 2, false);
 				}
-
 			}
 			if (obsDate == null
 					|| !(obsDate.toString().equals(obs.getObsDateTime()
 							.toString()))) {
+
 				inPanel.add(table);
 				subPanel.add(inPanel);
 				subPanel.setWidth("100%");
@@ -313,9 +506,68 @@ public class Flowsheet implements EntryPoint {
 			obsDate = obs.getObsDateTime();
 
 		}
-		dateObsStarted = obsDate;
-		bottomPanel.add(leftPanel);
-		bottomPanel.add(rightPanel);
+		leftPanel.setWidth("100%");
+		rightPanel.setWidth("100%");
+		bottomPanel.add(leftPanel, DockPanel.WEST);
+		bottomPanel.add(rightPanel, DockPanel.WEST);
+		bottomPanel.setCellWidth(leftPanel, "20%");
+		bottomPanel.setCellWidth(rightPanel, "80%");
+
+	}
+
+	public Chart getGraph(final Integer conceptId) {
+
+		ContentPanel cp = new ContentPanel();
+		cp.setHeading("Horizontal Bar chart");
+		cp.setFrame(true);
+		cp.setSize(550, 400);
+		cp.setLayout(new FitLayout());
+		String url = "/openmrs/moduleResources/flowsheet/chart/open-flash-chart.swf";
+		final Chart chart = new Chart(url);
+		chart.setChartModel(getHorizontalBarChartModel(conceptId));
+		return chart;
+	}
+
+	public ChartModel getHorizontalBarChartModel(Integer conceptId) {
+
+		// Create a ChartModel with the Chart Title and some
+		// style attributes
+		ChartModel cm = new ChartModel(numericData[0].getConceptName(),
+				"font-size: 14px; font-family:      Verdana; text-align: center;");
+		cm.setBackgroundColour("ffdef5");
+
+		XAxis xa = new XAxis();
+		// set the maximum, minimum and the step value for the X
+		// axis
+		xa.setColour("c799e8");
+		YAxis ya = new YAxis();
+		ya.setGridColour("81aeea");
+		// Add the labels to the Y axis
+		if (numericData[0] != null && numericData[0].getMinValue() != null
+				&& numericData[0].getMaxValue() != null) {
+			double min = numericData[0].getMinValue();
+			double max = numericData[0].getMaxValue();
+			int interval = (int) ((max - min) / 10);
+			ya.setRange(min, max, interval);
+		} else {
+			ya.setRange(30, 200, 20);
+		}
+		cm.setXAxis(xa);
+		LineChart lchart = new LineChart();
+		lchart.setTooltip("#val#" + numericData[0].getConceptName());
+		for (int index = numericData.length; index > 0; index--) {
+			if (numericData[index] != null) {
+				xa.addLabels(numericData[index].getObsDate().toString()
+						.substring(0, 10));
+				lchart.addDots(new Star(numericData[index].getObsValue()));
+			}
+		}
+		xa.setOffset(true);
+		cm.setYAxis(ya);
+		lchart.setColour("e73585");
+		cm.addChartConfig(lchart);
+		cm.setTooltipStyle(new ToolTip(MouseStyle.FOLLOW));
+		return cm;
 	}
 
 }

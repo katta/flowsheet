@@ -8,11 +8,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
+import org.openmrs.ConceptClass;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -26,6 +28,7 @@ import org.openmrs.module.flowsheet.gwt.client.FlowsheetService;
 import org.openmrs.module.flowsheet.gwt.client.PatientObs;
 import org.openmrs.module.flowsheet.gwt.client.PatientObsCollection;
 import org.openmrs.module.flowsheet.gwt.client.model.UIConcept;
+import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -78,19 +81,38 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	// java.util.Date toDate,
 	// boolean includeVoidedObs)
 	public List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate, List<Integer> conceptIds) {
+			Date endDate, List<Integer> conceptClassIds) {
+		
+		Locale locale = Context.getLocale();
 		List<UIObs> result = new ArrayList<UIObs>();
 		ObsService service = Context.getObsService();
 		List<Person> patientIdList = new ArrayList<Person>();
 		Patient patient = new Patient(Integer.valueOf(patientId));
 		patientIdList.add(patient);
 		List<Concept> conceptList;
-		if (conceptIds != null) {
+		if (conceptClassIds != null) {
+			if(conceptClassIds.isEmpty()){
+				return null;
+			}
+			ConceptService conceptService = Context.getConceptService();
 			conceptList = new ArrayList<Concept>();
-			for(Integer id:conceptIds){
-			conceptList.add(new Concept(id));
+			for (Integer id : conceptClassIds) {
+				ConceptClass conceptClass = conceptService.getConceptClass(id);
+				if (conceptClass != null) {
+					List<Concept> concepts = conceptService
+							.getConceptsByClass(conceptClass);
+					if (concepts != null) {
+						for (Concept entry : concepts) {
+							if (entry != null) {
+								conceptList.add(entry);
+							}
+						}
+					}
+				}
+
 			}
 		} else {
+			
 			conceptList = null;
 		}
 		// retrieve all observations for this person
@@ -128,8 +150,10 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 				if (concept1.getId() != null) {
 					uiConcept.setConceptId(concept1.getId().toString());
 				}
-				if (concept1.getDisplayString() != null) {
-					uiConcept.setDisplayName(concept1.getDisplayString());
+				if (concept1.getName(locale) != null
+						&& concept1.getName(locale).getName() != null) {
+					uiConcept
+							.setDisplayName(concept1.getName(locale).getName());
 				}
 
 				Collection<ConceptAnswer> answers = concept1.getAnswers();
@@ -205,8 +229,13 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 			if (obs.getValueNumeric() != null) {
 				uiObs.setNumericValue(obs.getValueNumeric());
 			}
+
 			if (obs.getValueText() != null) {
 				uiObs.setTextValue(obs.getValueText());
+			}
+
+			if (obs.getValueAsString(locale) != null) {
+				uiObs.setStringValue(obs.getValueAsString(locale));
 			}
 			// if(obs.getValueCoded()!=null &&
 			// obs.getValueCoded().getName().getName()!=null){
@@ -235,6 +264,263 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return conceptMap;
 	}
 
+	public List<UIObs> getDetailedData(String patientId, Date date,
+			Integer conceptId) {
+		List<UIObs> result = new ArrayList<UIObs>();
+		ObsService service = Context.getObsService();
+		List<Person> patientIdList = new ArrayList<Person>();
+		Patient patient = new Patient(Integer.valueOf(patientId));
+		patientIdList.add(patient);
+		List<Concept> conceptList;
+		if (conceptId != null) {
+			conceptList = new ArrayList<Concept>();
+			conceptList.add(new Concept(conceptId));
+
+		} else {
+			conceptList = null;
+		}
+		// retrieve all observations for this person
+		List<Obs> obsList = service.getObservations(patientIdList, null,
+				conceptList, null, null, null, null, null, null, date, null,
+				false);
+		for (Obs obs : obsList) {
+			if (obs != null) {
+				UIObs obj = new UIObs();
+				if (obs.getId() != null) {
+					obj.setObsId(obs.getId());
+				}
+				if (obs.getLocation() != null
+						&& obs.getLocation().toString() != null) {
+					obj.setLocation(obs.getLocation().toString());
+				}
+				if (obs.getComment() != null) {
+					obj.setComment(obs.getComment());
+				}
+				if (obs.getValueCodedName() != null
+						&& obs.getValueCodedName().toString() != null) {
+					obj.setCodedValue(obs.getValueCodedName().toString());
+				}
+				obj.setLocationId("ANDLFD**$$&&%");
+				result.add(obj);
+			}
+
+		}
+		return result;
+	}
+
+	public UINumericData[] getNumericValueHistory(String patientId,
+			Integer conceptId, Date startDate, Date endDate) {
+		List<UINumericData> resultList = new ArrayList<UINumericData>();
+		UINumericData[] result = null;
+		ObsService service = Context.getObsService();
+		List<Person> patientIdList = new ArrayList<Person>();
+
+		Patient patient = new Patient(Integer.valueOf(patientId));
+		patientIdList.add(patient);
+		List<Concept> conceptList;
+		if (conceptId != null) {
+			conceptList = new ArrayList<Concept>();
+			conceptList.add(new Concept(conceptId));
+
+		} else {
+			conceptList = null;
+		}
+		// retrieve all observations for this person
+		List<Obs> obsList = service.getObservations(patientIdList, null,
+				conceptList, null, null, null, null, null, null, startDate,
+				endDate, false);
+		for (Obs obs : obsList) {
+			if (obs != null) {
+				Concept concept = obs.getConcept();
+				if (concept != null && concept.getDatatype() != null
+						&& concept.getDatatype().isNumeric()
+						&& obs.getValueNumeric() != null) {
+					UINumericData data = new UINumericData();
+					data.setObsDate(obs.getObsDatetime());
+					data.setObsValue(obs.getValueNumeric());
+
+					Concept conceptObj = Context.getConceptService()
+							.getConcept(conceptId);
+					if (conceptObj.getDatatype().isNumeric()) {
+						ConceptNumeric conceptNumeric = Context
+								.getConceptService().getConceptNumeric(
+										concept.getConceptId());
+						Locale locale = Context.getLocale();
+						if (conceptNumeric != null) {
+							if (conceptObj.getName(locale) != null
+									&& conceptObj.getName(locale).getName() != null) {
+								data.setConceptName(conceptObj.getName(locale)
+										.getName());
+							}
+							if (conceptNumeric.getUnits() != null) {
+								data.setUnit(conceptNumeric.getUnits());
+							}
+							if (conceptNumeric.getLowAbsolute() != null) {
+								data.setMinValue(conceptNumeric
+										.getLowAbsolute());
+							}
+							if (conceptNumeric.getHiAbsolute() != null) {
+								data
+										.setMaxValue(conceptNumeric
+												.getHiAbsolute());
+							}
+						}
+						resultList.add(data);
+					}
+				}
+			}
+		}
+		result = new UINumericData[resultList.size()];
+		result = resultList.toArray(result);
+		return result;
+	}
+
+	// 0- conceptName , 1- unit , 2- minValue, 3- maxValue
+	public String[] getDataForNumericValueHistory(Integer conceptId) {
+		String[] result = new String[4];
+		Concept concept = Context.getConceptService().getConcept(conceptId);
+		if (concept.getDatatype().isNumeric()) {
+			ConceptNumeric conceptNumeric = Context.getConceptService()
+					.getConceptNumeric(concept.getConceptId());
+			Locale locale = Context.getLocale();
+			if (conceptNumeric != null) {
+				if (concept.getName(locale) != null
+						&& concept.getName(locale).getName() != null) {
+					// 0- name
+					result[0] = concept.getName(locale).getName();
+				}
+				if (conceptNumeric.getUnits() != null) {
+					// 1 - unit
+					result[1] = conceptNumeric.getUnits();
+				}
+				if (conceptNumeric.getLowAbsolute() != null) {
+					// 2-min
+					result[2] = conceptNumeric.getLowAbsolute().toString();
+				}
+				if (conceptNumeric.getHiAbsolute() != null) {
+					// 3- max
+					result[3] = conceptNumeric.getHiAbsolute().toString();
+				}
+			}
+
+		}
+		return result;
+	}
+
+	public String[] getPatientObsDetails(String patientId, Date date,
+			Integer conceptId) {
+		String[] result = null;
+		List<String> resultList = new ArrayList<String>();
+		Locale locale = Context.getLocale();
+		ObsService service = Context.getObsService();
+		List<Person> patientIdList = new ArrayList<Person>();
+		Patient patient = new Patient(Integer.valueOf(patientId));
+		patientIdList.add(patient);
+		List<Concept> conceptList;
+		if (conceptId != null) {
+			conceptList = new ArrayList<Concept>();
+			conceptList.add(new Concept(conceptId));
+
+		} else {
+			conceptList = null;
+		}
+		// retrieve all observations for this person
+		List<Obs> obsList = service.getObservations(patientIdList, null,
+				conceptList, null, null, null, null, null, null, date, date,
+				false);
+		for (Obs obs : obsList) {
+			if (obs != null) {
+
+				if (obs.getLocation() != null
+						&& obs.getLocation().getName() != null) {
+					resultList.add("Location: " + obs.getLocation().getName());
+				}
+				if (obs.getConcept() != null) {
+					if (obs.getConcept().getName(locale) != null
+							&& obs.getConcept().getName(locale).getName() != null) {
+						resultList.add("Concept Name: "
+								+ obs.getConcept().getName(locale).getName());
+					}
+					if (obs.getConcept().getDescription() != null
+							&& obs.getConcept().getDescription()
+									.getDescription() != null) {
+						resultList.add("Concept Description: "
+								+ obs.getConcept().getDescription()
+										.getDescription());
+					}
+					if (obs.getConcept().getConceptClass() != null
+							&& obs.getConcept().getConceptClass().getName() != null) {
+						resultList.add("Concept Class: "
+								+ obs.getConcept().getConceptClass().getName());
+					}
+				}
+
+				if (obs.getComment() != null) {
+					resultList.add("Comment: " + obs.getComment());
+				}
+				if (obs.getValueAsString(locale) != null) {
+					resultList.add("Value: " + obs.getValueAsString(locale));
+				}
+				if (obs.getValueDrug() != null) {
+					if (obs.getValueDrug().getFullName(locale) != null) {
+						resultList.add("Drug: "
+								+ obs.getValueDrug().getFullName(locale));
+					}
+					if (obs.getValueDrug().getDoseStrength() != null) {
+						resultList.add("Dosage Strength: "
+								+ obs.getValueDrug().getDoseStrength());
+					}
+				}
+			}
+
+			result = new String[resultList.size()];
+			result = resultList.toArray(result);
+
+		}
+		return result;
+	}
+
+	public String[][] getConceptClassList(String patientId, Date startDate,
+			Date endDate) {
+		String[][] resultArray = null;
+		Map<Integer, String> resultMap = new HashMap<Integer, String>();
+		ObsService service = Context.getObsService();
+		List<Person> patientIdList = new ArrayList<Person>();
+		Patient patient = new Patient(Integer.valueOf(patientId));
+		patientIdList.add(patient);
+
+		// retrieve all observations for this person
+		List<Obs> obsList = service.getObservations(patientIdList, null, null,
+				null, null, null, null, null, null, startDate, endDate, false);
+		// retrieving concepts classes
+
+		if (obsList == null) {
+			return null;
+		}
+		for (Obs obs : obsList) {
+			ConceptClass conceptClass;
+			if (obs != null
+					&& obs.getConcept() != null
+					&& (conceptClass = obs.getConcept().getConceptClass()) != null) {
+				// resultArray[0][index]=conceptClass.getConceptClassId().toString();
+				// resultArray[1][index++]=conceptClass.getName();
+				// uses map - no duplicates allowed
+				if (conceptClass.getConceptClassId() != null
+						&& conceptClass.getName() != null) {
+					resultMap.put(conceptClass.getConceptClassId(),
+							conceptClass.getName());
+				}
+			}
+		}
+		resultArray = new String[2][resultMap.size()];
+		int index = 0;
+		for (Integer id : resultMap.keySet()) {
+			resultArray[0][index] = id.toString();
+			resultArray[1][index++] = resultMap.get(id);
+		}
+
+		return resultArray;
+	}
 }
 
 class EncounterComparator implements Comparator<Encounter> {

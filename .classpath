@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="web/src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk"/>
+	<classpathentry kind="lib" path="/home/umashanthi/GSoC/Programs/Libraries/gxt-2.1.1/gxt.jar"/>
 	<classpathentry kind="lib" path="lib-common/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib-common/hibernate3.jar"/>
 	<classpathentry kind="lib" path="lib-common/junit-3.8.1.jar"/>
@@ -12,6 +13,5 @@
 	<classpathentry kind="lib" path="lib-common/openmrs-api-1.7.0.13514-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.7.0.13476-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/gwt-servlet.jar"/>
-	<classpathentry kind="lib" path="/home/umashanthi/GSoC/Programs/Libraries/gxt-2.1.1/gxt.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

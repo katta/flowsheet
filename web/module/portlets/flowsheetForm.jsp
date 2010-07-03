@@ -27,6 +27,7 @@
     <!-- be added before this line.                -->
     <!--                                           -->
     <script type="text/javascript" language="javascript" src="/openmrs/moduleResources/flowsheet/mywebapp/mywebapp.nocache.js"></script>
+        <script language='javascript' src='/openmrs/moduleResources/flowsheet/flash/swfobject.js'></script>  
   </head>
 
   <!--                                           -->
