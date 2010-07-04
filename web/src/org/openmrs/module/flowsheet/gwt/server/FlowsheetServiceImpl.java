@@ -81,7 +81,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	// java.util.Date toDate,
 	// boolean includeVoidedObs)
 	public List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate, List<Integer> conceptClassIds) {
+			Date endDate, Set<Integer> conceptClassIds) {
 		
 		Locale locale = Context.getLocale();
 		List<UIObs> result = new ArrayList<UIObs>();

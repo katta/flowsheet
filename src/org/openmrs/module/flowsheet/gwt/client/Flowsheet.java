@@ -1,9 +1,10 @@
 package org.openmrs.module.flowsheet.gwt.client;
 
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
@@ -72,10 +73,11 @@ public class Flowsheet implements EntryPoint {
 	private Label selectedDatesLabel = new Label();
 	private String[][] conceptTypeData = null;
 	private String patientId;
-	private List<Integer> selectedConnceptTypes = new ArrayList<Integer>();
+	private Set<Integer> selectedConnceptTypes = new HashSet<Integer>();
 	private boolean isClearSelected = false;
 	private boolean isSelectAllSelected = false;
-	private FlowsheetServiceAsync service=null;
+	private FlowsheetServiceAsync service = null;
+
 	public void onModuleLoad() {
 		patientId = com.google.gwt.user.client.Window.Location
 				.getParameter("patientId");
@@ -94,6 +96,8 @@ public class Flowsheet implements EntryPoint {
 		formPanel = new FormPanel();
 		formPanel.setFrame(true);
 		formPanel.setHeading("Filtering Options");
+		formPanel.setCollapsible(true);
+		formPanel.setHideCollapseTool(false);
 		formPanel.setLabelWidth(100);
 		Label dateRangeLabel = new Label("Select Date Range: ");
 		dateRangeLabel.setStyleName("label1");
@@ -120,8 +124,8 @@ public class Flowsheet implements EntryPoint {
 					c1.setBoxLabel(result[1][index++]);
 					c1.setValue(true);
 					c1.setValueAttribute((result[0][index - 1]).toString());
-					selectedConnceptTypes.add(Integer
-							.valueOf(c1.getValueAttribute()));
+					selectedConnceptTypes.add(Integer.valueOf(c1
+							.getValueAttribute()));
 					c1.addListener(Events.Change, new Listener<BaseEvent>() {
 
 						@Override
@@ -182,8 +186,9 @@ public class Flowsheet implements EntryPoint {
 								List<CheckBox> options = group.getValues();
 								for (CheckBox option : options) {
 									option.setValue(false);
-									selectedConnceptTypes.remove(Integer
-											.valueOf(option.getValueAttribute()));
+									selectedConnceptTypes
+											.remove(Integer.valueOf(option
+													.getValueAttribute()));
 								}
 								rightPanel.clear();
 								isClearSelected = false;
@@ -198,7 +203,7 @@ public class Flowsheet implements EntryPoint {
 			}
 		};
 		service.getConceptClassList(patientId, null, null, callback1);
-				leftPanel.add(formPanel);
+		leftPanel.add(formPanel);
 		leftPanel.setHeight("100%");
 		leftPanel.add(resultLabel);
 
@@ -209,7 +214,7 @@ public class Flowsheet implements EntryPoint {
 			}
 
 			public void onSuccess(Date[] range) {
-			
+
 				slider = new Slider2Bar(range[1].getTime(), range[0].getTime(),
 						(43200), true);
 
@@ -218,8 +223,8 @@ public class Flowsheet implements EntryPoint {
 				String startDate = slider.getCurrent1DateValue().toString();
 				String endDate = slider.getCurrent2DateValue().toString();
 				selectedDatesLabel.setText(startDate.substring(4, 10)
-						+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
-						+ endDate.substring(27));
+						+ startDate.substring(27) + "                       "
+						+ endDate.substring(4, 10) + endDate.substring(27));
 				slider.setNumTicks(0);
 				slider.setNumLabels(2);
 				slider.setLineWidth(200);
@@ -229,57 +234,75 @@ public class Flowsheet implements EntryPoint {
 				slider.getKnob2Image().addMouseUpHandler(new MouseUpHandler() {
 					public void onMouseUp(MouseUpEvent arg0) {
 						Slider2Bar bar = slider;
-						String startDate = bar.getCurrent1DateValue().toString();
+						String startDate = bar.getCurrent1DateValue()
+								.toString();
 						String endDate = bar.getCurrent2DateValue().toString();
 						selectedDatesLabel.setText(startDate.substring(4, 10)
-								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+								+ startDate.substring(27)
+								+ "                       "
+								+ endDate.substring(4, 10)
 								+ endDate.substring(27));
-						getResponse(bar.getCurrent1DateValue(),
-								bar.getCurrent2DateValue(), null);
+						getResponse(bar.getCurrent1DateValue(), bar
+								.getCurrent2DateValue(), null);
 					}
 				});
 				slider.getKnob1Image().addMouseUpHandler(new MouseUpHandler() {
 					public void onMouseUp(MouseUpEvent arg0) {
 						Slider2Bar bar = slider;
-						String startDate = bar.getCurrent1DateValue().toString();
+						String startDate = bar.getCurrent1DateValue()
+								.toString();
 						String endDate = bar.getCurrent2DateValue().toString();
 						selectedDatesLabel.setText(startDate.substring(4, 10)
-								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
+								+ startDate.substring(27)
+								+ "                       "
+								+ endDate.substring(4, 10)
 								+ endDate.substring(27));
-						getResponse(bar.getCurrent1DateValue(),
-								bar.getCurrent2DateValue(), null);
+						getResponse(bar.getCurrent1DateValue(), bar
+								.getCurrent2DateValue(), null);
 					}
 				});
-				
-				slider.getKnob1Image().addMouseMoveHandler(new MouseMoveHandler(){
 
-					@Override
-					public void onMouseMove(MouseMoveEvent event) {
-						Slider2Bar bar=slider;
-						String startDate = bar.getCurrent1DateValue().toString();
-						String endDate = bar.getCurrent2DateValue().toString();
-						selectedDatesLabel.setText(startDate.substring(4, 10)
-								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
-								+ endDate.substring(27));
-						
-					}
-					
-				});
-				slider.getKnob2Image().addMouseMoveHandler(new MouseMoveHandler(){
+				slider.getKnob1Image().addMouseMoveHandler(
+						new MouseMoveHandler() {
 
-					@Override
-					public void onMouseMove(MouseMoveEvent event) {
-						Slider2Bar bar=slider;
-						String startDate = bar.getCurrent1DateValue().toString();
-						String endDate = bar.getCurrent2DateValue().toString();
-						selectedDatesLabel.setText(startDate.substring(4, 10)
-								+ startDate.substring(27)+"                       "+endDate.substring(4, 10)
-								+ endDate.substring(27));
-						
-					}
-					
-				});
-			
+							@Override
+							public void onMouseMove(MouseMoveEvent event) {
+								Slider2Bar bar = slider;
+								String startDate = bar.getCurrent1DateValue()
+										.toString();
+								String endDate = bar.getCurrent2DateValue()
+										.toString();
+								selectedDatesLabel.setText(startDate.substring(
+										4, 10)
+										+ startDate.substring(27)
+										+ "                       "
+										+ endDate.substring(4, 10)
+										+ endDate.substring(27));
+
+							}
+
+						});
+				slider.getKnob2Image().addMouseMoveHandler(
+						new MouseMoveHandler() {
+
+							@Override
+							public void onMouseMove(MouseMoveEvent event) {
+								Slider2Bar bar = slider;
+								String startDate = bar.getCurrent1DateValue()
+										.toString();
+								String endDate = bar.getCurrent2DateValue()
+										.toString();
+								selectedDatesLabel.setText(startDate.substring(
+										4, 10)
+										+ startDate.substring(27)
+										+ "                       "
+										+ endDate.substring(4, 10)
+										+ endDate.substring(27));
+
+							}
+
+						});
+
 				formPanel.insert(slider, 1);
 			}
 		};
@@ -291,8 +314,8 @@ public class Flowsheet implements EntryPoint {
 	}
 
 	private void getResponse(final Date startDate, final Date endDate,
-			final List<Integer> conceptId) {
-		if(conceptId!=null && conceptId.size()==0){
+			final Set<Integer> conceptId) {
+		if (conceptId != null && conceptId.size() == 0) {
 			// No concept filtering option selected
 			rightPanel.clear();
 		}
@@ -318,7 +341,7 @@ public class Flowsheet implements EntryPoint {
 				}
 			}
 		};
-		
+
 		serviceAsync.getPatientObsData(patientId, startDate, endDate,
 				conceptId, callback);
 	}
@@ -435,6 +458,8 @@ public class Flowsheet implements EntryPoint {
 					}
 				});
 				inPanel = new FormPanel();
+				inPanel.setCollapsible(true);
+				inPanel.setHideCollapseTool(false);
 				subPanel = new VerticalPanel();
 				subPanel.setWidth("100%");
 				inPanel.setHeading(obs.getObsDateTime().toString().substring(0,

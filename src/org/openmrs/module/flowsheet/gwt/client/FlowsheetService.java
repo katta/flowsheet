@@ -3,6 +3,7 @@ package org.openmrs.module.flowsheet.gwt.client;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openmrs.Concept;
 import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
@@ -15,7 +16,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface FlowsheetService extends RemoteService {
 	// PatientObsCollection[] getObsData(String patientId);
 	List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate, List<Integer> conceptIds);
+			Date endDate, Set<Integer> conceptIds);
 
 	Date[] getDateRange(String patiendId);
 
