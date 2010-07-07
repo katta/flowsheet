@@ -1,6 +1,5 @@
 package org.openmrs.module.flowsheet.gwt.client;
 
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -43,9 +42,11 @@ import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -99,7 +100,7 @@ public class Flowsheet implements EntryPoint {
 		formPanel.setCollapsible(true);
 		formPanel.setHideCollapseTool(false);
 		formPanel.setLabelWidth(100);
-		Label dateRangeLabel = new Label("Select Date Range: ");
+		Label dateRangeLabel = new Label("Result Dates");
 		dateRangeLabel.setStyleName("label1");
 		formPanel.add(dateRangeLabel);
 		HorizontalPanel dateLablesPanel = new HorizontalPanel();
@@ -122,6 +123,7 @@ public class Flowsheet implements EntryPoint {
 				for (String entry : result[0]) {
 					CheckBox c1 = new CheckBox();
 					c1.setBoxLabel(result[1][index++]);
+					c1.setLabelStyle("checkboxLabel");
 					c1.setValue(true);
 					c1.setValueAttribute((result[0][index - 1]).toString());
 					selectedConnceptTypes.add(Integer.valueOf(c1
@@ -156,49 +158,50 @@ public class Flowsheet implements EntryPoint {
 				Label resultTypeLabel = new Label("Result Types");
 				resultTypeLabel.setStyleName("label1");
 				formPanel.add(resultTypeLabel);
-				Button selectAllButton = new Button("Select All");
-				selectAllButton
-						.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				Anchor selectAllAnchor = new Anchor("Select All");
+				selectAllAnchor.addClickHandler(new ClickHandler() {
 
-							@Override
-							public void componentSelected(ButtonEvent ce) {
-								isSelectAllSelected = true;
-								List<Field<?>> options = (List<Field<?>>) group
-										.getAll();
-								for (Field<?> option : options) {
-									CheckBox opt = (CheckBox) option;
-									opt.setValue(true);
-									selectedConnceptTypes.add(Integer
-											.valueOf(opt.getValueAttribute()));
-								}
-								getResponse(null, null, selectedConnceptTypes);
-								isSelectAllSelected = false;
-							}
+					@Override
+					public void onClick(ClickEvent arg0) {
+						isSelectAllSelected = true;
+						List<Field<?>> options = (List<Field<?>>) group
+								.getAll();
+						for (Field<?> option : options) {
+							CheckBox opt = (CheckBox) option;
+							opt.setValue(true);
+							selectedConnceptTypes.add(Integer.valueOf(opt
+									.getValueAttribute()));
+						}
+						getResponse(null, null, selectedConnceptTypes);
+						isSelectAllSelected = false;
+					}
 
-						});
-				Button clearButton = new Button("Clear");
-				clearButton
-						.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				});
+				
+				Anchor clearAnchor = new Anchor("Clear");
+				clearAnchor.addClickHandler(new ClickHandler() {
 
-							@Override
-							public void componentSelected(ButtonEvent ce) {
-								isClearSelected = true;
-								List<CheckBox> options = group.getValues();
-								for (CheckBox option : options) {
-									option.setValue(false);
-									selectedConnceptTypes
-											.remove(Integer.valueOf(option
-													.getValueAttribute()));
-								}
-								rightPanel.clear();
-								isClearSelected = false;
-							}
-						});
-				HorizontalPanel buttonPanel = new HorizontalPanel();
-				buttonPanel.setSpacing(10);
-				buttonPanel.add(selectAllButton);
-				buttonPanel.add(clearButton);
-				formPanel.add(buttonPanel);
+					@Override
+					public void onClick(ClickEvent arg0) {
+						isClearSelected = true;
+						List<CheckBox> options = group.getValues();
+						for (CheckBox option : options) {
+							option.setValue(false);
+							selectedConnceptTypes.remove(Integer.valueOf(option
+									.getValueAttribute()));
+						}
+						rightPanel.clear();
+						isClearSelected = false;
+					}
+
+				});
+				
+				HorizontalPanel anchorPanel = new HorizontalPanel();
+				anchorPanel.setSpacing(5);
+				anchorPanel.add(selectAllAnchor);
+				anchorPanel.add(new Label(" | "));
+				anchorPanel.add(clearAnchor);
+				formPanel.add(anchorPanel);
 				formPanel.add(group);
 			}
 		};

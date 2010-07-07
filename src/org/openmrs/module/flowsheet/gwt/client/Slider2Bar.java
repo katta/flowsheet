@@ -214,8 +214,9 @@ public class Slider2Bar extends Composite implements HasMouseUpHandlers,
 		composite.setWidgetPosition(knobsLine, horizontalOffset,
 				sliderLabelsHeight + sliderTicksHeight + 2);
 		composite
-				.setWidth((knobsLine.getOffsetWidth() + (horizontalOffset * 4))
+				.setWidth((knobsLine.getOffsetWidth() + (horizontalOffset * 2))
 						+ "px");
+		composite.setStyleName(".x-form-text, textarea.x-form-field ");
 		composite.setHeight((sliderLabelsHeight + sliderTicksHeight + 2
 				+ knobsLine.getOffsetHeight() + 10)
 				+ "px");

@@ -54,8 +54,10 @@
 .label1 {
  font-size: 12px;
  font-weight: bold;
- font-style: oblique;
- font-family: sans-serif;	
+ font-family: cursive;	
+ padding-top: 10px;
+ padding-bottom: 2px;
+ color: #20448c;
  }
  
  .label2 {
@@ -63,6 +65,11 @@
  font-weight: bold;
  font-family: sans-serif;	
  white-space: pre;
+  color: #20448c;
+ }
+ 
+ .checkboxLabel{
+ color: #20448c;
  }
 
 .gwt-SliderBar-shell {
@@ -108,6 +115,6 @@
 }
 
 .gwt-SliderBar-line-sliding {
-	background-color: #A00;
+	background-color: #20448c;
 	cursor: pointer;
 }
