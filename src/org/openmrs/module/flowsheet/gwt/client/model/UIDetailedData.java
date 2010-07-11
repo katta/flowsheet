@@ -4,14 +4,16 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class UINumericData implements IsSerializable{
+public class UIDetailedData implements IsSerializable{
 	private Date obsDate;
 	private Double obsValue;
 	private String conceptName;
 	private Double minValue;
 	private Double maxValue;
 	private String unit;
-	 public UINumericData(){
+	private String stringValue;
+	private boolean isNumeric;
+	 public UIDetailedData(){
 		 
 	 }
 
@@ -61,5 +63,21 @@ public class UINumericData implements IsSerializable{
 
 	public String getConceptName() {
 		return conceptName;
+	}
+
+	public void setStringValue(String stringValue) {
+		this.stringValue = stringValue;
+	}
+
+	public String getStringValue() {
+		return stringValue;
+	}
+
+	public void setNumeric(boolean isNumeric) {
+		this.isNumeric = isNumeric;
+	}
+
+	public boolean isNumeric() {
+		return isNumeric;
 	}
 }

@@ -19,6 +19,7 @@ import org.openmrs.ConceptNumeric;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.EncounterService;
@@ -28,9 +29,11 @@ import org.openmrs.module.flowsheet.gwt.client.FlowsheetService;
 import org.openmrs.module.flowsheet.gwt.client.PatientObs;
 import org.openmrs.module.flowsheet.gwt.client.PatientObsCollection;
 import org.openmrs.module.flowsheet.gwt.client.model.UIConcept;
-import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
+import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
+import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class FlowsheetServiceImpl extends RemoteServiceServlet implements
@@ -82,7 +85,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	// boolean includeVoidedObs)
 	public List<UIObs> getPatientObsData(String patientId, Date startDate,
 			Date endDate, Set<Integer> conceptClassIds) {
-		
+
 		Locale locale = Context.getLocale();
 		List<UIObs> result = new ArrayList<UIObs>();
 		ObsService service = Context.getObsService();
@@ -91,7 +94,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		patientIdList.add(patient);
 		List<Concept> conceptList;
 		if (conceptClassIds != null) {
-			if(conceptClassIds.isEmpty()){
+			if (conceptClassIds.isEmpty()) {
 				return null;
 			}
 			ConceptService conceptService = Context.getConceptService();
@@ -112,7 +115,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 
 			}
 		} else {
-			
+
 			conceptList = null;
 		}
 		// retrieve all observations for this person
@@ -308,10 +311,10 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return result;
 	}
 
-	public UINumericData[] getNumericValueHistory(String patientId,
+	public UIDetailedData[] getDetailedHistory(String patientId,
 			Integer conceptId, Date startDate, Date endDate) {
-		List<UINumericData> resultList = new ArrayList<UINumericData>();
-		UINumericData[] result = null;
+		List<UIDetailedData> resultList = new ArrayList<UIDetailedData>();
+		UIDetailedData[] result = null;
 		ObsService service = Context.getObsService();
 		List<Person> patientIdList = new ArrayList<Person>();
 
@@ -332,45 +335,55 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		for (Obs obs : obsList) {
 			if (obs != null) {
 				Concept concept = obs.getConcept();
-				if (concept != null && concept.getDatatype() != null
-						&& concept.getDatatype().isNumeric()
-						&& obs.getValueNumeric() != null) {
-					UINumericData data = new UINumericData();
-					data.setObsDate(obs.getObsDatetime());
-					data.setObsValue(obs.getValueNumeric());
+				if (concept != null && concept.getDatatype() != null) {
 
 					Concept conceptObj = Context.getConceptService()
 							.getConcept(conceptId);
-					if (conceptObj.getDatatype().isNumeric()) {
-						ConceptNumeric conceptNumeric = Context
-								.getConceptService().getConceptNumeric(
-										concept.getConceptId());
-						Locale locale = Context.getLocale();
-						if (conceptNumeric != null) {
-							if (conceptObj.getName(locale) != null
-									&& conceptObj.getName(locale).getName() != null) {
-								data.setConceptName(conceptObj.getName(locale)
-										.getName());
+					Locale locale = Context.getLocale();
+					UIDetailedData data = new UIDetailedData();
+					data.setObsDate(obs.getObsDatetime());
+					if (concept.getDatatype().isNumeric()
+							&& obs.getValueNumeric() != null) {
+
+						data.setObsValue(obs.getValueNumeric());
+
+						if (conceptObj.getDatatype().isNumeric()) {
+							ConceptNumeric conceptNumeric = Context
+									.getConceptService().getConceptNumeric(
+											concept.getConceptId());
+
+							if (conceptNumeric != null) {
+								data.setNumeric(true);
+								if (conceptObj.getName(locale) != null
+										&& conceptObj.getName(locale).getName() != null) {
+									data.setConceptName(conceptObj.getName(
+											locale).getName());
+								}
+								if (conceptNumeric.getUnits() != null) {
+									data.setUnit(conceptNumeric.getUnits());
+								}
+								if (conceptNumeric.getLowAbsolute() != null) {
+									data.setMinValue(conceptNumeric
+											.getLowAbsolute());
+								}
+								if (conceptNumeric.getHiAbsolute() != null) {
+									data.setMaxValue(conceptNumeric
+											.getHiAbsolute());
+								}
 							}
-							if (conceptNumeric.getUnits() != null) {
-								data.setUnit(conceptNumeric.getUnits());
-							}
-							if (conceptNumeric.getLowAbsolute() != null) {
-								data.setMinValue(conceptNumeric
-										.getLowAbsolute());
-							}
-							if (conceptNumeric.getHiAbsolute() != null) {
-								data
-										.setMaxValue(conceptNumeric
-												.getHiAbsolute());
-							}
+							resultList.add(data);
+						}
+					} else {
+						data.setNumeric(false);
+						if (obs.getValueAsString(locale) != null) {
+							data.setStringValue(obs.getValueAsString(locale));
 						}
 						resultList.add(data);
 					}
 				}
 			}
 		}
-		result = new UINumericData[resultList.size()];
+		result = new UIDetailedData[resultList.size()];
 		result = resultList.toArray(result);
 		return result;
 	}
@@ -428,53 +441,39 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		List<Obs> obsList = service.getObservations(patientIdList, null,
 				conceptList, null, null, null, null, null, null, date, date,
 				false);
+		result = new String[4];
 		for (Obs obs : obsList) {
 			if (obs != null) {
-
-				if (obs.getLocation() != null
-						&& obs.getLocation().getName() != null) {
-					resultList.add("Location: " + obs.getLocation().getName());
+				result[0] = obs.getPerson().getPersonName().toString();
+				for (PatientIdentifier pi : Context.getPatientService()
+						.getPatient(Integer.valueOf(patientId))
+						.getIdentifiers()) {
+					if (pi.isPreferred()) {
+						result[1] = pi.getIdentifier();
+						break;
+					}
+				}
+				if (result[1] == null) {
+					result[1] = "";
 				}
 				if (obs.getConcept() != null) {
 					if (obs.getConcept().getName(locale) != null
 							&& obs.getConcept().getName(locale).getName() != null) {
-						resultList.add("Concept Name: "
-								+ obs.getConcept().getName(locale).getName());
+						result[2] = obs.getConcept().getName(locale).getName();
+					} else {
+						result[2] = "";
 					}
 					if (obs.getConcept().getDescription() != null
 							&& obs.getConcept().getDescription()
 									.getDescription() != null) {
-						resultList.add("Concept Description: "
-								+ obs.getConcept().getDescription()
-										.getDescription());
+						result[3] = obs.getConcept().getDescription()
+								.getDescription();
+					} else {
+						result[3] = "";
 					}
-					if (obs.getConcept().getConceptClass() != null
-							&& obs.getConcept().getConceptClass().getName() != null) {
-						resultList.add("Concept Class: "
-								+ obs.getConcept().getConceptClass().getName());
-					}
-				}
-
-				if (obs.getComment() != null) {
-					resultList.add("Comment: " + obs.getComment());
-				}
-				if (obs.getValueAsString(locale) != null) {
-					resultList.add("Value: " + obs.getValueAsString(locale));
-				}
-				if (obs.getValueDrug() != null) {
-					if (obs.getValueDrug().getFullName(locale) != null) {
-						resultList.add("Drug: "
-								+ obs.getValueDrug().getFullName(locale));
-					}
-					if (obs.getValueDrug().getDoseStrength() != null) {
-						resultList.add("Dosage Strength: "
-								+ obs.getValueDrug().getDoseStrength());
-					}
+					
 				}
 			}
-
-			result = new String[resultList.size()];
-			result = resultList.toArray(result);
 
 		}
 		return result;
@@ -502,8 +501,6 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 			if (obs != null
 					&& obs.getConcept() != null
 					&& (conceptClass = obs.getConcept().getConceptClass()) != null) {
-				// resultArray[0][index]=conceptClass.getConceptClassId().toString();
-				// resultArray[1][index++]=conceptClass.getName();
 				// uses map - no duplicates allowed
 				if (conceptClass.getConceptClassId() != null
 						&& conceptClass.getName() != null) {
@@ -521,6 +518,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 
 		return resultArray;
 	}
+
 }
 
 class EncounterComparator implements Comparator<Encounter> {

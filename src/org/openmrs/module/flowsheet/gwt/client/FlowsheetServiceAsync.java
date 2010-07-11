@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
+import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -28,9 +28,9 @@ public interface FlowsheetServiceAsync {
 	public void getDataForNumericValueHistory(Integer conceptId,
 			AsyncCallback<String[]> callback);
 
-	public void getNumericValueHistory(String patientId, Integer conceptId,
+	public void getDetailedHistory(String patientId, Integer conceptId,
 			Date startDate, Date endDate,
-			AsyncCallback<UINumericData[]> callback);
+			AsyncCallback<UIDetailedData[]> callback);
 
 	public void getPatientObsDetails(String patientId, Date date,
 			Integer conceptId, AsyncCallback<String[]> callback);

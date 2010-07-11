@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openmrs.Concept;
-import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
+import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -24,7 +24,7 @@ public interface FlowsheetService extends RemoteService {
 
 	List<UIObs> getDetailedData(String patientId, Date date, Integer conceptId);
 
-	UINumericData[] getNumericValueHistory(String patientId, Integer conceptId,
+	UIDetailedData[] getDetailedHistory(String patientId, Integer conceptId,
 			Date startDate, Date endDate);
 	String[] getPatientObsDetails(String patientId, Date date,Integer conceptId);
 

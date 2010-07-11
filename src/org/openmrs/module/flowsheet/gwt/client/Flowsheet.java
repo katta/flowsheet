@@ -1,13 +1,13 @@
 package org.openmrs.module.flowsheet.gwt.client;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openmrs.module.flowsheet.gwt.client.model.UINumericData;
+import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
-
 import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.charts.client.model.ChartModel;
 import com.extjs.gxt.charts.client.model.ToolTip;
@@ -16,21 +16,32 @@ import com.extjs.gxt.charts.client.model.axis.XAxis;
 import com.extjs.gxt.charts.client.model.axis.YAxis;
 import com.extjs.gxt.charts.client.model.charts.LineChart;
 import com.extjs.gxt.charts.client.model.charts.dots.Star;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.EntryPoint;
@@ -46,7 +57,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -68,8 +78,8 @@ public class Flowsheet implements EntryPoint {
 	private FormData formData = new FormData();
 	private int sendConceptCount = 0;
 	private int currentConceptCount = 0;
-	private UINumericData[] numericData = null;
-	private Chart lchart = null;
+	private UIDetailedData[] numericData = null;
+	private LayoutContainer lchart = null;
 	private Slider2Bar slider = null;
 	private Label selectedDatesLabel = new Label();
 	private String[][] conceptTypeData = null;
@@ -78,6 +88,7 @@ public class Flowsheet implements EntryPoint {
 	private boolean isClearSelected = false;
 	private boolean isSelectAllSelected = false;
 	private FlowsheetServiceAsync service = null;
+	private String[] patientObsDetailArray = null;
 
 	public void onModuleLoad() {
 		patientId = com.google.gwt.user.client.Window.Location
@@ -177,7 +188,7 @@ public class Flowsheet implements EntryPoint {
 					}
 
 				});
-				
+
 				Anchor clearAnchor = new Anchor("Clear");
 				clearAnchor.addClickHandler(new ClickHandler() {
 
@@ -195,7 +206,7 @@ public class Flowsheet implements EntryPoint {
 					}
 
 				});
-				
+
 				HorizontalPanel anchorPanel = new HorizontalPanel();
 				anchorPanel.setSpacing(5);
 				anchorPanel.add(selectAllAnchor);
@@ -368,11 +379,12 @@ public class Flowsheet implements EntryPoint {
 				table = new FlexTable();
 				table.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent evt) {
+						final ContentPanel panel = new ContentPanel();
 						final FlexTable tab = (FlexTable) evt.getSource();
 						Cell clickedCell = tab.getCellForEvent(evt);
 						final int rowIndex = clickedCell.getRowIndex();
 						final Window window = new Window();
-						window.setSize(500, 300);
+						window.setSize(900, 500);
 						window.setPlain(true);
 						window.setModal(true);
 						window.setBlinkModal(true);
@@ -390,52 +402,6 @@ public class Flowsheet implements EntryPoint {
 						final boolean isNumeric = Boolean.valueOf(tab.getText(
 								rowIndex, 2));
 
-						final Button graphBtn = new Button("Show History");
-						form.setHeading(dateValue.toString());
-						graphBtn
-								.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-									public void componentSelected(ButtonEvent ce) {
-
-										FlowsheetServiceAsync serviceAsync = GWT
-												.create(FlowsheetService.class);
-
-										AsyncCallback<UINumericData[]> newCallback = new AsyncCallback<UINumericData[]>() {
-											public void onFailure(
-													Throwable caught) {
-												resultLabel.setText(caught
-														.getMessage());
-											}
-
-											public void onSuccess(
-													UINumericData[] result) {
-												numericData = result;
-												lchart = getGraph(Integer
-														.valueOf(tab.getText(
-																rowIndex, 1)));
-												final Window graphWindow = new Window();
-												graphWindow.setSize(500, 300);
-												graphWindow.setPlain(true);
-												graphWindow.setModal(true);
-												graphWindow.setBlinkModal(true);
-												graphWindow
-														.setHeading("Observation History");
-												graphWindow
-														.setLayout(new FitLayout());
-												graphWindow
-														.setMaximizable(true);
-												graphWindow.add(lchart);
-												graphWindow.show();
-											}
-										};
-										serviceAsync.getNumericValueHistory(
-												patientId, conceptId, null,
-												null, newCallback);
-
-									}
-
-								});
-
 						FlowsheetServiceAsync serviceAsync = GWT
 								.create(FlowsheetService.class);
 
@@ -445,19 +411,55 @@ public class Flowsheet implements EntryPoint {
 							}
 
 							public void onSuccess(String[] result) {
-								for (String data : result) {
-									form.add(new Text(data));
-								}
+								patientObsDetailArray = result;
 
-								window.add(form);
-								if (isNumeric) {
-									form.add(graphBtn);
-								}
-								window.show();
 							}
 						};
 						serviceAsync.getPatientObsDetails(patientIdValue,
 								dateValue, conceptId, callback);
+
+						serviceAsync = GWT.create(FlowsheetService.class);
+
+						AsyncCallback<UIDetailedData[]> newCallback = new AsyncCallback<UIDetailedData[]>() {
+							public void onFailure(Throwable caught) {
+								resultLabel.setText(caught.getMessage());
+							}
+
+							public void onSuccess(UIDetailedData[] result) {
+								numericData = result;
+								lchart = getGraph(Integer.valueOf(tab.getText(
+										rowIndex, 1)));
+								panel.setLayout(new BorderLayout());
+								BorderLayoutData lay = new BorderLayoutData(
+										LayoutRegion.NORTH, 50);
+								panel
+										.setHeading(patientObsDetailArray[2]
+												+ " for "
+												+ patientObsDetailArray[0]
+												+ " ("
+												+ patientObsDetailArray[1]
+												+ ")");
+								form.add(new Text(patientObsDetailArray[3]));
+								form.setHeaderVisible(false);
+								panel.add(form, lay);
+								BorderLayoutData chartLayout = new BorderLayoutData(
+										LayoutRegion.WEST, 500);
+								BorderLayoutData flowsheetLayout = new BorderLayoutData(
+										LayoutRegion.CENTER, 400);
+								if (isNumeric) {
+									panel.add(lchart, chartLayout);
+								} else {
+									window.setSize(600, 500);
+								}
+								panel.add(getFlowsheet(isNumeric),
+										flowsheetLayout);
+								window.add(panel);
+								window.show();
+							}
+						};
+						serviceAsync.getDetailedHistory(patientId, conceptId,
+								null, null, newCallback);
+
 					}
 				});
 				inPanel = new FormPanel();
@@ -543,17 +545,73 @@ public class Flowsheet implements EntryPoint {
 
 	}
 
-	public Chart getGraph(final Integer conceptId) {
+	private ContentPanel getFlowsheet(boolean isNumeric) {
 
-		ContentPanel cp = new ContentPanel();
-		cp.setHeading("Horizontal Bar chart");
-		cp.setFrame(true);
-		cp.setSize(550, 400);
-		cp.setLayout(new FitLayout());
+		ListStore<ObsDataModel> store = new ListStore<ObsDataModel>();
+		store.add(getPatientObsData(isNumeric));
+		List<ColumnConfig> col = new ArrayList<ColumnConfig>();
+		ColumnConfig column = new ColumnConfig();
+		column.setId("obsDate");
+		column.setHeader("Date");
+		column.setWidth(80);
+		col.add(column);
+		column = new ColumnConfig();
+		column.setId("obsValue");
+		String unit = numericData[0].getUnit();
+		column.setHeader(isNumeric ? ("Value (" + unit + ")") : ("Value"));
+		column.setWidth(60);
+		column.setAlignment(isNumeric ? HorizontalAlignment.CENTER
+				: HorizontalAlignment.LEFT);
+		col.add(column);
+		ColumnModel cm = new ColumnModel(col);
+		Grid<ObsDataModel> grid = new Grid<ObsDataModel>(store, cm);
+		grid.setBorders(true);
+		grid.setStripeRows(true);
+		grid.getView().setForceFit(true);
+		GridSelectionModel<ObsDataModel> gsm = grid.getSelectionModel();
+		gsm.setSelectionMode(SelectionMode.SINGLE);
+
+		ContentPanel cPanel = new ContentPanel();
+		cPanel.setLayout(new FitLayout());
+		cPanel.add(grid);
+		FieldSet resourcePanel = new FieldSet();
+		resourcePanel.setHeading("Online Resources");
+		resourcePanel.setCollapsible(true);
+		Anchor googleLink = new Anchor("Google", "http://www.google.com",
+				"_blank");
+		Anchor onlineLabResultLink = new Anchor("Lab Tests Online", "",
+				"_blank");
+		Anchor upToDateLink = new Anchor("UpToDate", "", "_blank");
+		VerticalPanel vPanel = new VerticalPanel();
+		vPanel.add(upToDateLink);
+		vPanel.add(googleLink);
+		vPanel.add(onlineLabResultLink);
+		resourcePanel.add(vPanel);
+		resourcePanel.getElement().getStyle().setBorderColor("#99bbe8");
+		FieldSet bottomComponent = new FieldSet();
+		bottomComponent.add(resourcePanel);
+		Anchor detailLinkAnchor = new Anchor(
+				"Show me the details of the specific result I clicked");
+		bottomComponent.add(detailLinkAnchor);
+		bottomComponent.getElement().getStyle().setBorderColor("#99bbe8");
+		cPanel.setBottomComponent(bottomComponent);
+		cPanel.setHeading("Flowsheet");
+		cPanel.setCollapsible(true);
+		return cPanel;
+	}
+
+	private LayoutContainer getGraph(final Integer conceptId) {
+
 		String url = "/openmrs/moduleResources/flowsheet/chart/open-flash-chart.swf";
 		final Chart chart = new Chart(url);
 		chart.setChartModel(getHorizontalBarChartModel(conceptId));
-		return chart;
+		FieldSet fs = new FieldSet();
+		fs.setHeading("Chart");
+		fs.setLayout(new FitLayout());
+		fs.add(chart, new FitData(0, 0, 20, 0));
+		fs.setCollapsible(true);
+		fs.getElement().getStyle().setBorderColor("#99bbe8");
+		return fs;
 	}
 
 	public ChartModel getHorizontalBarChartModel(Integer conceptId) {
@@ -583,12 +641,13 @@ public class Flowsheet implements EntryPoint {
 		cm.setXAxis(xa);
 		LineChart lchart = new LineChart();
 		lchart.setTooltip("#val#" + numericData[0].getConceptName());
-		for (int index = numericData.length; index > 0; index--) {
-			if (numericData[index] != null) {
-				xa.addLabels(numericData[index].getObsDate().toString()
-						.substring(0, 10));
-				lchart.addDots(new Star(numericData[index].getObsValue()));
-			}
+		for (int index = 1; index <= numericData.length; index++) {
+			// if (numericData[numericData.length-index] != null) {
+			xa.addLabels(numericData[numericData.length - index].getObsDate()
+					.toString().substring(0, 10));
+			lchart.addDots(new Star(numericData[numericData.length - index]
+					.getObsValue()));
+			// }
 		}
 		xa.setOffset(true);
 		cm.setYAxis(ya);
@@ -596,6 +655,56 @@ public class Flowsheet implements EntryPoint {
 		cm.addChartConfig(lchart);
 		cm.setTooltipStyle(new ToolTip(MouseStyle.FOLLOW));
 		return cm;
+	}
+
+	private List<ObsDataModel> getPatientObsData(boolean isNumeric) {
+		List<ObsDataModel> data = new ArrayList<ObsDataModel>();
+		for (int index = 0; index < numericData.length; index++) {
+			if (numericData[index] != null) {
+				if (isNumeric) {
+					data.add(new ObsDataModel(numericData[index].getObsDate()
+							.toString().substring(0, 10), numericData[index]
+							.getObsValue().toString()));
+				} else {
+					data.add(new ObsDataModel(numericData[index].getObsDate()
+							.toString().substring(0, 10), numericData[index]
+							.getStringValue()));
+				}
+			}
+		}
+		return data;
+	}
+}
+
+class ObsDataModel extends BaseModel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ObsDataModel(String date, String time, String value) {
+		set("obsDate", date);
+		set("obsTime", time);
+		set("obsValue", value);
+
+	}
+
+	public ObsDataModel(String date, String value) {
+		set("obsDate", date);
+		set("obsValue", value);
+
+	}
+
+	String getObsDate() {
+		return (String) get("obsDate");
+	}
+
+	String getObsTime() {
+		return (String) get("obsTime");
+	}
+
+	String getObsValue() {
+		return (String) get("obsValue");
 	}
 
 }
