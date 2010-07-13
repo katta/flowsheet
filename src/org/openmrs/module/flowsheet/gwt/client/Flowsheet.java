@@ -108,8 +108,7 @@ public class Flowsheet implements EntryPoint {
 		formPanel = new FormPanel();
 		formPanel.setFrame(true);
 		formPanel.setHeading("Filtering Options");
-		formPanel.setCollapsible(true);
-		formPanel.setHideCollapseTool(false);
+		formPanel.setCollapsible(false);
 		formPanel.setLabelWidth(100);
 		Label dateRangeLabel = new Label("Result Dates");
 		dateRangeLabel.setStyleName("label1");
@@ -463,8 +462,7 @@ public class Flowsheet implements EntryPoint {
 					}
 				});
 				inPanel = new FormPanel();
-				inPanel.setCollapsible(true);
-				inPanel.setHideCollapseTool(false);
+				inPanel.setCollapsible(false);
 				subPanel = new VerticalPanel();
 				subPanel.setWidth("100%");
 				inPanel.setHeading(obs.getObsDateTime().toString().substring(0,
@@ -576,7 +574,7 @@ public class Flowsheet implements EntryPoint {
 		cPanel.add(grid);
 		FieldSet resourcePanel = new FieldSet();
 		resourcePanel.setHeading("Online Resources");
-		resourcePanel.setCollapsible(true);
+		resourcePanel.setCollapsible(false);
 		Anchor googleLink = new Anchor("Google", "http://www.google.com",
 				"_blank");
 		Anchor onlineLabResultLink = new Anchor("Lab Tests Online", "",
@@ -596,7 +594,7 @@ public class Flowsheet implements EntryPoint {
 		bottomComponent.getElement().getStyle().setBorderColor("#99bbe8");
 		cPanel.setBottomComponent(bottomComponent);
 		cPanel.setHeading("Flowsheet");
-		cPanel.setCollapsible(true);
+		cPanel.setCollapsible(false);
 		return cPanel;
 	}
 
@@ -609,7 +607,7 @@ public class Flowsheet implements EntryPoint {
 		fs.setHeading("Chart");
 		fs.setLayout(new FitLayout());
 		fs.add(chart, new FitData(0, 0, 20, 0));
-		fs.setCollapsible(true);
+		fs.setCollapsible(false);
 		fs.getElement().getStyle().setBorderColor("#99bbe8");
 		return fs;
 	}

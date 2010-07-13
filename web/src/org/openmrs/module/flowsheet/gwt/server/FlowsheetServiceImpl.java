@@ -423,7 +423,6 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	public String[] getPatientObsDetails(String patientId, Date date,
 			Integer conceptId) {
 		String[] result = null;
-		List<String> resultList = new ArrayList<String>();
 		Locale locale = Context.getLocale();
 		ObsService service = Context.getObsService();
 		List<Person> patientIdList = new ArrayList<Person>();
@@ -445,14 +444,9 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		for (Obs obs : obsList) {
 			if (obs != null) {
 				result[0] = obs.getPerson().getPersonName().toString();
-				for (PatientIdentifier pi : Context.getPatientService()
-						.getPatient(Integer.valueOf(patientId))
-						.getIdentifiers()) {
-					if (pi.isPreferred()) {
-						result[1] = pi.getIdentifier();
-						break;
-					}
-				}
+				result[1] = Context.getPatientService().getPatient(
+						Integer.valueOf(patientId)).getPatientIdentifier()
+						.getIdentifier();
 				if (result[1] == null) {
 					result[1] = "";
 				}
@@ -471,7 +465,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 					} else {
 						result[3] = "";
 					}
-					
+
 				}
 			}
 
@@ -521,14 +515,3 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 
 }
 
-class EncounterComparator implements Comparator<Encounter> {
-
-	public int compare(Encounter o1, Encounter o2) {
-		if (o1.getDateCreated().getTime() > o2.getDateCreated().getTime()) {
-			return -1;
-		} else {
-			return 1;
-		}
-	}
-
-}
