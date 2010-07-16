@@ -15,3 +15,18 @@
   * Then invoke the 'package-module' Ant task
   * Now the module will be packged under flowsheet/dist with the name 'flowsheet-1.0.omod'
   * You can deploy this module in the OpenMRS deployment
+
+
+##########################
+## Performance Details  ##
+##########################
+
+###Testing the time delays for retrieving data and redering, running on local Tomcat Server
+
+### Average results
+
+## 240 rows - Time delay 1310 ms Render Time 42 ms
+## 130 rows Time delay 999 ms Render Time 24 ms
+## 93 rows - Time delay 640 ms Render Time 20 ms
+## 80 rows - Time delay 883 ms Render Time 19 ms
+## 60 rows - Time delay 496 ms Render Time 12 ms
