@@ -37,4 +37,6 @@ public interface FlowsheetServiceAsync {
 
 	public void getConceptClassList(String patientId, Date startDate,
 			Date endDate, AsyncCallback<String[][]> callback);
+
+	public void getObsDetails(Integer obsId, AsyncCallback<UIObs> callback);
 }

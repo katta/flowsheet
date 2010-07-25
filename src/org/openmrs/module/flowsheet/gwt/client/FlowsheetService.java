@@ -30,4 +30,5 @@ public interface FlowsheetService extends RemoteService {
 
 	String[] getDataForNumericValueHistory(Integer conceptId);
 	String[][] getConceptClassList(String patientId,Date startDate,Date endDate);
+	UIObs getObsDetails(Integer obsId);
 }

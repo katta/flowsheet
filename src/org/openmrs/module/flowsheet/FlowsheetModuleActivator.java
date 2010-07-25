@@ -15,13 +15,13 @@ package org.openmrs.module.flowsheet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.module.BaseModuleActivator;
+import org.openmrs.module.Activator;
 
 /**
  * This class contains the logic that is run every time this module
  * is either started or shutdown
  */
-public class FlowsheetModuleActivator extends BaseModuleActivator {
+public class FlowsheetModuleActivator implements Activator{
 
 	private Log log = LogFactory.getLog(this.getClass());
 

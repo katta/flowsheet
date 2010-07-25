@@ -5,18 +5,64 @@ import java.util.Date;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class UIDetailedData implements IsSerializable{
+	private Integer obsId;
 	private Date obsDate;
 	private Double obsValue;
 	private String conceptName;
 	private Double minValue;
 	private Double maxValue;
+	public Double getHiNormal() {
+		return hiNormal;
+	}
+
+
+	public void setHiNormal(Double hiNormal) {
+		this.hiNormal = hiNormal;
+	}
+
+
+	public Double getHiCritical() {
+		return hiCritical;
+	}
+
+
+	public void setHiCritical(Double hiCritical) {
+		this.hiCritical = hiCritical;
+	}
+
+
+	public Double getLowNormal() {
+		return lowNormal;
+	}
+
+
+	public void setLowNormal(Double lowNormal) {
+		this.lowNormal = lowNormal;
+	}
+
+
+	public Double getLowCritical() {
+		return lowCritical;
+	}
+
+
+	public void setLowCritical(Double lowCritical) {
+		this.lowCritical = lowCritical;
+	}
+
+
+	private Double hiNormal;
+	private Double hiCritical;
+	private Double lowNormal;
+	private Double lowCritical;
 	private String unit;
 	private String stringValue;
 	private boolean isNumeric;
 	 public UIDetailedData(){
 		 
 	 }
-
+	
+	 
 	public void setObsDate(Date obsDate) {
 		this.obsDate = obsDate;
 	}
@@ -79,5 +125,15 @@ public class UIDetailedData implements IsSerializable{
 
 	public boolean isNumeric() {
 		return isNumeric;
+	}
+
+
+	public void setObsId(Integer obsId) {
+		this.obsId = obsId;
+	}
+
+
+	public Integer getObsId() {
+		return obsId;
 	}
 }

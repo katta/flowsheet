@@ -49,6 +49,10 @@
     </noscript>
 	
 <!--    <h2>~Patient Data</h2>-->
+<div id="loading" align="center"> 
+       <h2 style="color: #000080;">Loading.....</h2>
+       <img alt="" src="/openmrs/moduleResources/flowsheet/loading.gif">
+    </div> 
     <div id="webapp" align="center"></div>
 <!--	<table align="center" style="table">-->
 <!--      <tr>-->

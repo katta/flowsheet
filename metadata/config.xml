@@ -11,7 +11,7 @@
 	<description>
 			
 	</description>
-	<activator>@MODULE_PACKAGE@.FlowsheetModuleActivator</activator>
+	<activator>org.openmrs.module.flowsheet.FlowsheetModuleActivator</activator>
 	<extension>
 	<point>org.openmrs.patientDashboardTab</point>
 		<class>@MODULE_PACKAGE@.extension.html.FlowsheetTabExt</class>

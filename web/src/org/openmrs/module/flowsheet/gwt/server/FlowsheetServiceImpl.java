@@ -124,8 +124,8 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 				endDate, false);
 		for (Obs obs : obsList) {
 			UIObs uiObs = new UIObs();
-			if (obs.getId() != null) {
-				uiObs.setObsId(obs.getId());
+			if (obs.getObsId() != null) {
+				uiObs.setObsId(obs.getObsId());
 			}
 			if (obs.getObsDatetime() != null) {
 				uiObs.setObsDateTime(obs.getObsDatetime());
@@ -311,6 +311,127 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return result;
 	}
 
+	public UIObs getObsDetails(Integer obsId) {
+		UIObs result = null;
+		Locale locale = Context.getLocale();
+		ObsService service = Context.getObsService();
+		Obs obs = service.getObs(obsId);
+		if (obs != null) {
+			result = new UIObs();
+			
+			if (obs.getObsId() != null) {
+				result.setObsId(obs.getObsId());
+			}
+			if (obs.getObsDatetime() != null) {
+				result.setObsDateTime(obs.getObsDatetime());
+			}
+			if (obs.getLocation() != null) {
+				result.setLocation(obs.getLocation().toString());
+			}
+			if (obs.getComment() != null) {
+				result.setComment(obs.getComment());
+			}
+			if (obs.getConceptDescription() != null) {
+				result.setConceptDescription(obs.getConceptDescription()
+						.getDescription());
+			}
+			Concept concept1;
+			if ((concept1 = obs.getConcept()) != null) {
+				UIConcept uiConcept = new UIConcept();
+				if (concept1.getId() != null) {
+					uiConcept.setConceptId(concept1.getId().toString());
+				}
+				if (concept1.getName(locale) != null
+						&& concept1.getName(locale).getName() != null) {
+					uiConcept
+							.setDisplayName(concept1.getName(locale).getName());
+				}
+
+				Collection<ConceptAnswer> answers = concept1.getAnswers();
+				List<String> conceptAns = new ArrayList<String>();
+				if (answers != null) {
+					for (ConceptAnswer ans : answers) {
+						if (ans != null
+								&& ans.getAnswerConcept() != null
+								&& ans.getAnswerConcept().getName() != null
+								&& ans.getAnswerConcept().getName().getName() != null) {
+							conceptAns.add(ans.getAnswerConcept().getName()
+									.getName());
+						}
+					}
+				}
+				uiConcept.setAnswers(conceptAns);
+				if (concept1.getConceptClass() != null
+						&& concept1.getConceptClass().getName() != null) {
+					uiConcept.setConceptClass(concept1.getConceptClass()
+							.getName());
+				}
+				if (concept1.getDescription() != null
+						&& concept1.getDescription().getDescription() != null) {
+					uiConcept.setDescription(concept1.getDescription()
+							.getDescription());
+				}
+				uiConcept.setComplex(concept1.isComplex());
+				uiConcept.setNumeric(concept1.isNumeric());
+				uiConcept.setSet(concept1.isSet());
+				if (concept1.getDatatype() != null
+						&& concept1.getDatatype().getName() != null) {
+					uiConcept.setDataType(concept1.getDatatype().getName());
+				}
+				if (concept1.getDatatype().isNumeric()) {
+					ConceptNumeric conceptNumeric = Context.getConceptService()
+							.getConceptNumeric(concept1.getConceptId());
+					if (conceptNumeric != null) {
+						if (conceptNumeric.getUnits() != null) {
+							uiConcept.setUnits(conceptNumeric.getUnits());
+						}
+						if (conceptNumeric.getHiAbsolute() != null) {
+							uiConcept.setHiAbsoulute(conceptNumeric
+									.getHiAbsolute());
+						}
+						if (conceptNumeric.getHiNormal() != null) {
+							uiConcept.setHiNormal(conceptNumeric.getHiNormal());
+						}
+						if (conceptNumeric.getHiCritical() != null) {
+							uiConcept.setHiCritical(conceptNumeric
+									.getHiCritical());
+						}
+						if (conceptNumeric.getLowAbsolute() != null) {
+							uiConcept.setLowAbsolute(conceptNumeric
+									.getLowAbsolute());
+						}
+						if (conceptNumeric.getLowNormal() != null) {
+							uiConcept.setLowNormal(conceptNumeric
+									.getLowNormal());
+						}
+						if (conceptNumeric.getLowCritical() != null) {
+							uiConcept.setLowCritical(conceptNumeric
+									.getLowCritical());
+						}
+
+					}
+				}
+				result.setConcepts(uiConcept);
+			}
+			if (obs.getValueBoolean() != null) {
+				result.setBooleanValue(obs.getValueBoolean());
+			}
+			if (obs.getValueNumeric() != null) {
+				result.setNumericValue(obs.getValueNumeric());
+			}
+
+			if (obs.getValueText() != null) {
+				result.setTextValue(obs.getValueText());
+			}
+
+			if (obs.getValueAsString(locale) != null) {
+				result.setStringValue(obs.getValueAsString(locale));
+			}
+		}
+
+		return result;
+	}
+
 	public UIDetailedData[] getDetailedHistory(String patientId,
 			Integer conceptId, Date startDate, Date endDate) {
 		List<UIDetailedData> resultList = new ArrayList<UIDetailedData>();
@@ -341,6 +462,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 							.getConcept(conceptId);
 					Locale locale = Context.getLocale();
 					UIDetailedData data = new UIDetailedData();
+					data.setObsId(obs.getObsId());
 					data.setObsDate(obs.getObsDatetime());
 					if (concept.getDatatype().isNumeric()
 							&& obs.getValueNumeric() != null) {
@@ -369,6 +491,18 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 								if (conceptNumeric.getHiAbsolute() != null) {
 									data.setMaxValue(conceptNumeric
 											.getHiAbsolute());
+								}
+								if(conceptNumeric.getHiCritical()!=null){
+									data.setHiCritical(conceptNumeric.getHiCritical());
+								}
+								if(conceptNumeric.getHiNormal()!=null){
+									data.setHiNormal(conceptNumeric.getHiNormal());
+								}
+								if(conceptNumeric.getLowCritical()!=null){
+									data.setLowCritical(conceptNumeric.getLowCritical());
+								}
+								if(conceptNumeric.getLowNormal()!=null){
+									data.setLowNormal(conceptNumeric.getLowNormal());
 								}
 							}
 							resultList.add(data);
@@ -514,4 +648,3 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	}
 
 }
-
