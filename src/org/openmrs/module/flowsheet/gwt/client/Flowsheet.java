@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
-
 import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 import com.extjs.gxt.charts.client.Chart;
@@ -17,6 +16,8 @@ import com.extjs.gxt.charts.client.model.ToolTip.MouseStyle;
 import com.extjs.gxt.charts.client.model.axis.XAxis;
 import com.extjs.gxt.charts.client.model.axis.YAxis;
 import com.extjs.gxt.charts.client.model.charts.LineChart;
+import com.extjs.gxt.charts.client.model.charts.dots.Bow;
+import com.extjs.gxt.charts.client.model.charts.dots.SolidDot;
 import com.extjs.gxt.charts.client.model.charts.dots.Star;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -25,13 +26,20 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.data.LoadEvent;
+import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.KeyboardEvents;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -41,6 +49,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -50,6 +59,9 @@ import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
+import com.extjs.gxt.ui.client.widget.grid.HeaderGroupConfig;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
@@ -99,10 +111,18 @@ public class Flowsheet implements EntryPoint {
 	private boolean isSelectAllSelected = false;
 	private FlowsheetServiceAsync service = null;
 	private String[] patientObsDetailArray = null;
+	private Integer totalObsCount = 0;
+	private Integer sentStartIndex = 0;
+	private Integer obsPerReq = 25;
+	private Integer sentLastIndex = obsPerReq;
+	private List<UIObs> patientObsList = new ArrayList<UIObs>();
+	long startTime;
+	GroupingStore<ObsDataModel> obsDataGroupStore;
+	StoreFilterField<ObsDataModel> filterField;
+	Label conceptNameLabel;
 
 	public void onModuleLoad() {
-		
-		
+
 		patientId = com.google.gwt.user.client.Window.Location
 				.getParameter("patientId");
 		// Top Panel
@@ -114,7 +134,7 @@ public class Flowsheet implements EntryPoint {
 		topPanel.setWidth("100%");
 		topPanel.setStyleName("topPanel");
 		topPanel.setWidth("100%");
-		mainPanel.add(topPanel);
+		// mainPanel.add(topPanel);
 		// End of Top Panel
 		// Left side Form Panel
 		formPanel = new FormPanel();
@@ -163,7 +183,8 @@ public class Flowsheet implements EntryPoint {
 								if (!(isClearSelected || isSelectAllSelected)) {
 									rightPanel.clear();
 									RootPanel.get("loading").setVisible(true);
-									getResponse(slider.getCurrent1DateValue(), slider.getCurrent2DateValue(),
+									getResponse(slider.getCurrent1DateValue(),
+											slider.getCurrent2DateValue(),
 											selectedConnceptTypes);
 								}
 							} else {
@@ -172,7 +193,8 @@ public class Flowsheet implements EntryPoint {
 								if (!(isClearSelected || isSelectAllSelected)) {
 									rightPanel.clear();
 									RootPanel.get("loading").setVisible(true);
-									getResponse(slider.getCurrent1DateValue(), slider.getCurrent2DateValue(),
+									getResponse(slider.getCurrent1DateValue(),
+											slider.getCurrent2DateValue(),
 											selectedConnceptTypes);
 								}
 							}
@@ -200,7 +222,8 @@ public class Flowsheet implements EntryPoint {
 						}
 						rightPanel.clear();
 						RootPanel.get("loading").setVisible(true);
-						getResponse(slider.getCurrent1DateValue(), slider.getCurrent2DateValue(), selectedConnceptTypes);
+						getResponse(slider.getCurrent1DateValue(), slider
+								.getCurrent2DateValue(), selectedConnceptTypes);
 						isSelectAllSelected = false;
 					}
 
@@ -350,7 +373,8 @@ public class Flowsheet implements EntryPoint {
 
 	private void getResponse(final Date startDate, final Date endDate,
 			final Set<Integer> conceptId) {
-		final long startTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
+		patientObsList = new ArrayList<UIObs>();
 
 		if (conceptId != null && conceptId.size() == 0) {
 			// No concept filtering option selected
@@ -362,31 +386,77 @@ public class Flowsheet implements EntryPoint {
 			sendConceptCount = conceptId.size();
 		}
 		FlowsheetServiceAsync serviceAsync = GWT.create(FlowsheetService.class);
+		AsyncCallback<Integer> obsCountCallback = new AsyncCallback<Integer>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				resultLabel.setText(caught.getMessage());
+			}
+
+			@Override
+			public void onSuccess(Integer result) {
+				totalObsCount = result;
+				if (totalObsCount > obsPerReq) {
+					sentStartIndex = 0;
+					sentLastIndex = obsPerReq;
+				} else {
+					sentLastIndex = totalObsCount;
+				}
+				getObs(startDate, endDate, conceptId, 0, sentLastIndex);
+
+			}
+
+		};
+		serviceAsync.getObsCount(patientId, startDate, endDate, conceptId,
+				obsCountCallback);
+
+	}
+
+	private void getObs(final Date startDate, final Date endDate,
+			final Set<Integer> conceptId, Integer startIndex, Integer lastIndex) {
+
+		FlowsheetServiceAsync serviceAsync = GWT.create(FlowsheetService.class);
 		AsyncCallback<List<UIObs>> callback = new AsyncCallback<List<UIObs>>() {
 			public void onFailure(Throwable caught) {
 				resultLabel.setText(caught.getMessage());
 			}
 
 			public void onSuccess(List<UIObs> result) {
-				long endTime = System.currentTimeMillis();
+				patientObsList.addAll(result);
+
 				currentConceptCount = selectedConnceptTypes.size();
-				if (conceptId == null
-						|| sendConceptCount == currentConceptCount) {
-					showData(result);
+				/*
+				 * if (conceptId == null || sendConceptCount ==
+				 * currentConceptCount) { showData(result); long
+				 * renderFinishTime = System.currentTimeMillis(); //
+				 * resultLabel.setText("Time delay " + (endTime - startTime) //
+				 * + " ms" + " Render Time " // + (renderFinishTime - endTime) +
+				 * " ms"); RootPanel.get("loading").setVisible(false);
+				 * RootPanel.get("webapp").add(mainPanel); } else {
+				 * getResponse(startDate, endDate, selectedConnceptTypes); }
+				 */
+				if (sentLastIndex >= totalObsCount) { // all obs are requested
+					long endTime = System.currentTimeMillis();
+					showData(patientObsList);
 					long renderFinishTime = System.currentTimeMillis();
-//					resultLabel.setText("Time delay " + (endTime - startTime)
-//							+ " ms" + " Render Time "
-//							+ (renderFinishTime - endTime) + " ms");
+					/*
+					 * resultLabel.setText("Time delay " + (endTime - startTime)
+					 * + " ms" + " Render Time " + (renderFinishTime - endTime)
+					 * + " ms");
+					 */
 					RootPanel.get("loading").setVisible(false);
 					RootPanel.get("webapp").add(mainPanel);
 				} else {
-					getResponse(startDate, endDate, selectedConnceptTypes);
+					sentStartIndex = sentLastIndex;
+					sentLastIndex = sentLastIndex + obsPerReq;
+					getObs(startDate, endDate, conceptId, sentStartIndex,
+							sentLastIndex);
 				}
 			}
 		};
 
 		serviceAsync.getPatientObsData(patientId, startDate, endDate,
-				conceptId, callback);
+				conceptId, startIndex, lastIndex, callback);
 	}
 
 	private void showData(List<UIObs> data) {
@@ -400,16 +470,17 @@ public class Flowsheet implements EntryPoint {
 			bottomPanel.remove(rightPanel);
 		}
 		rightPanel = new VerticalPanel();
-		FormPanel inPanel = new FormPanel();
-		GroupingStore<ObsDataModel> store = new GroupingStore<ObsDataModel>();
-		store.groupBy("obsDate");
-		store.sort("obsDate", SortDir.DESC);
+		final FormPanel inPanel = new FormPanel();
+		obsDataGroupStore = new GroupingStore<ObsDataModel>();
+		obsDataGroupStore.groupBy("obsDate");
+		obsDataGroupStore.sort("obsDate", SortDir.DESC);
 		for (UIObs obs : data) {
 
 			if (obsDate == null
 					|| !(obsDate.toString().equals(obs.getObsDateTime()
 							.toString()))) {
-				inPanel = new FormPanel();
+				// inPanel = new FormPanel();
+				inPanel.clear();
 				inPanel.setCollapsible(false);
 				subPanel = new VerticalPanel();
 				subPanel.setWidth("100%");
@@ -439,13 +510,36 @@ public class Flowsheet implements EntryPoint {
 						.getConcepts().getConceptId()), isNumeric);
 				obsData.set("dateValue", obs.getObsDateTime());
 				obsData.set("obsId", obs.getObsId());
-				store.add(obsData);
+				obsDataGroupStore.add(obsData);
 			}
 
 			obsDate = obs.getObsDateTime();
 
 		}
 
+		
+		// FilterField
+		filterField = new StoreFilterField<ObsDataModel>() {
+
+			@Override
+			protected boolean doSelect(Store<ObsDataModel> store,
+					ObsDataModel parent, ObsDataModel record, String property,
+					String filter) {
+				String conceptName = record.get("conceptName");
+				conceptName = conceptName.toLowerCase();
+				if (conceptName.startsWith(filter.toLowerCase())) {
+					return true;
+				}
+				return false;
+			}
+
+		};
+		filterField.bind(obsDataGroupStore);
+		filterField.setFieldLabel("Filter by Concept Name");
+		GridFilters filters = new GridFilters();
+		filters.setLocal(true);
+		StringFilter conceptFilter = new StringFilter("conceptName");
+		filters.addFilter(conceptFilter);
 		List<ColumnConfig> col = new ArrayList<ColumnConfig>();
 		ColumnConfig column = new ColumnConfig();
 		column.setId("obsDate");
@@ -455,7 +549,7 @@ public class Flowsheet implements EntryPoint {
 		column = new ColumnConfig();
 		column.setId("conceptName");
 		column.setHeader("Observation");
-		column.setWidth(500);
+		column.setWidth(400);
 		col.add(column);
 		column = new ColumnConfig();
 		column.setId("obsValue");
@@ -474,13 +568,52 @@ public class Flowsheet implements EntryPoint {
 						+ data.models.size() + " " + l + ")";
 			}
 		});
-		Grid<ObsDataModel> grid = new Grid<ObsDataModel>(store, cm);
+		cm.addHeaderGroup(0, 1, new HeaderGroupConfig("Filter Observation by Concept Name", 1, 1)); 
+		filterField.setWidth(240);
+		cm.addHeaderGroup(0, 2, new HeaderGroupConfig(filterField, 1, 1));  
+		final Grid<ObsDataModel> grid = new Grid<ObsDataModel>(
+				obsDataGroupStore, cm);
 		grid.setBorders(true);
 		grid.setStripeRows(true);
 		grid.getView().setForceFit(true);
 		GridSelectionModel<ObsDataModel> gsm = grid.getSelectionModel();
 		gsm.setSelectionMode(SelectionMode.SINGLE);
 		grid.setView(view);
+		grid.addPlugin(filters);
+		grid.addListener(Events.ViewReady, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent be) {
+				grid.getStore().addListener(Store.Add,
+						new Listener<StoreEvent<ObsDataModel>>() {
+							public void handleEvent(StoreEvent<ObsDataModel> be) {
+								if (grid.isViewReady()) {
+									grid.getView().getScroller()
+											.setStyleAttribute("overflowY",
+													"hidden");
+									inPanel.setHeight((grid.getView().getBody()
+											.isScrollableX() ? 19 : 0)
+											+ grid.el().getFrameWidth("tb")
+											+ grid.getView().getHeader()
+													.getHeight()
+											+ inPanel.getFrameHeight()
+											+ grid.getView().getBody()
+													.firstChild().getHeight());
+								}
+							}
+						});
+				if (grid.isViewReady()) {
+					grid.getView().getScroller().setStyleAttribute("overflowY",
+							"hidden");
+					inPanel
+							.setHeight((grid.getView().getBody()
+									.isScrollableX() ? 19 : 0)
+									+ grid.el().getFrameWidth("tb")
+									+ grid.getView().getHeader().getHeight()
+									+ inPanel.getFrameHeight()
+									+ grid.getView().getBody().firstChild()
+											.getHeight());
+				}
+			}
+		});
 		grid.addListener(Events.CellClick,
 				new Listener<GridEvent<ObsDataModel>>() {
 
@@ -488,11 +621,12 @@ public class Flowsheet implements EntryPoint {
 					public void handleEvent(final GridEvent<ObsDataModel> be) {
 						final ContentPanel panel = new ContentPanel();
 						final Window window = new Window();
+						window.setOnEsc(true);
 						window.setSize(900, 500);
 						window.setPlain(true);
 						window.setModal(true);
 						window.setBlinkModal(true);
-						window.setHeading("Patient Observation Details");
+						// window.setHeading("Patient Observation Details");
 						window.setLayout(new FitLayout());
 						window.setMaximizable(true);
 						final FormPanel form = new FormPanel();
@@ -528,11 +662,13 @@ public class Flowsheet implements EntryPoint {
 
 							public void onSuccess(UIDetailedData[] result) {
 								numericData = result;
-								lchart = getGraph(be.getModel().getConceptId());
+								lchart = getGraph(be.getModel().getConceptId(),
+										be.getModel().getObsId());
 								panel.setLayout(new BorderLayout());
 								BorderLayoutData lay = new BorderLayoutData(
 										LayoutRegion.NORTH, 50);
-								panel
+								panel.setHeaderVisible(false);
+								window
 										.setHeading(patientObsDetailArray[2]
 												+ " for "
 												+ patientObsDetailArray[0]
@@ -540,27 +676,48 @@ public class Flowsheet implements EntryPoint {
 												+ patientObsDetailArray[1]
 												+ ")");
 								form.add(new Text(patientObsDetailArray[3]));
-								if(isNumeric){
+								if (isNumeric) {
 									lay = new BorderLayoutData(
 											LayoutRegion.NORTH, 80);
-									if(numericData[0].getHiNormal()!=null && numericData[0].getLowNormal()!=null){
-										form.add(new Text("Normal Range: "+numericData[0].getLowNormal()+" - "+numericData[0].getHiNormal()+" "+numericData[0].getUnit()));
+									if (numericData[0].getHiNormal() != null
+											&& numericData[0].getLowNormal() != null) {
+										form.add(new Text("Normal Range: "
+												+ numericData[0].getLowNormal()
+												+ " - "
+												+ numericData[0].getHiNormal()
+												+ " "
+												+ numericData[0].getUnit()));
+									} else if (numericData[0].getHiNormal() != null) {
+										form.add(new Text("Normal Range: < "
+												+ numericData[0].getHiNormal()
+												+ " "
+												+ numericData[0].getUnit()));
+									} else if (numericData[0].getLowNormal() != null) {
+										form.add(new Text("Normal Range: > "
+												+ numericData[0].getLowNormal()
+												+ " "
+												+ numericData[0].getUnit()));
 									}
-									else if(numericData[0].getHiNormal()!=null){
-										form.add(new Text("Normal Range < "+numericData[0].getHiNormal()+" "+numericData[0].getUnit()));
-									}
-									else if(numericData[0].getLowNormal()!=null){
-										form.add(new Text("Normal Range > "+numericData[0].getLowNormal()+" "+numericData[0].getUnit()));
-									}
-									
-									if(numericData[0].getHiCritical()!=null && numericData[0].getLowCritical()!=null){
-										form.add(new Text("Critical Range: "+numericData[0].getLowCritical()+" - "+numericData[0].getHiCritical()+" "+numericData[0].getUnit()));
-									}
-									else if(numericData[0].getHiCritical()!=null){
-										form.add(new Text("Critical Range < "+numericData[0].getHiCritical()+" "+numericData[0].getUnit()));
-									}
-									else if(numericData[0].getLowCritical()!=null){
-										form.add(new Text("Critical Range > "+numericData[0].getLowCritical()+" "+numericData[0].getUnit()));
+
+									if (numericData[0].getHiCritical() != null
+											&& numericData[0].getLowCritical() != null) {
+										form.add(new Text("Critical Range: "
+												+ numericData[0]
+														.getLowCritical()
+												+ " - "
+												+ numericData[0]
+														.getHiCritical() + " "
+												+ numericData[0].getUnit()));
+									} else if (numericData[0].getHiCritical() != null) {
+										form.add(new Text("Critical Range: > "
+												+ numericData[0]
+														.getHiCritical() + " "
+												+ numericData[0].getUnit()));
+									} else if (numericData[0].getLowCritical() != null) {
+										form.add(new Text("Critical Range:  < "
+												+ numericData[0]
+														.getLowCritical() + " "
+												+ numericData[0].getUnit()));
 									}
 								}
 								form.setHeaderVisible(false);
@@ -577,6 +734,7 @@ public class Flowsheet implements EntryPoint {
 								panel.add(getFlowsheet(isNumeric, be.getModel()
 										.getObsId()), flowsheetLayout);
 								window.add(panel);
+
 								window.show();
 							}
 						};
@@ -587,7 +745,8 @@ public class Flowsheet implements EntryPoint {
 
 				});
 		inPanel.setLayout(new FitLayout());
-		inPanel.setSize(750, (int) (store.getCount() * 23.5));// TODO
+		inPanel.setSize(750, (int) (obsDataGroupStore.getCount() * 23.5));// TODO
+		inPanel.setWidth(700);
 		inPanel.add(grid);
 		subPanel.add(inPanel);
 		subPanel.setWidth("100%");
@@ -613,15 +772,42 @@ public class Flowsheet implements EntryPoint {
 			public String render(ObsDataModel model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<ObsDataModel> store, Grid<ObsDataModel> grid) {
-				
+
 				if (selectObsId.toString().equals(
 						((Integer) model.get("obsId")).toString())) {
-				
+
 					return "<span style='background-color:yellow'>"
-					+ (String) model.get(property) + "</span>";
+							+ (String) model.get(property) + "</span>";
 				}
 
-				return "<span>"
+				return "<span>" + (String) model.get(property) + "</span>";
+			}
+		};
+		GridCellRenderer<ObsDataModel> valueCellRenderer = new GridCellRenderer<ObsDataModel>() {
+			@Override
+			public String render(ObsDataModel model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ObsDataModel> store, Grid<ObsDataModel> grid) {
+				String color = null;
+				int valueRange = (Integer) model.get("valueRange");
+				switch (valueRange) {
+				case 1:
+					color = "blue";
+					break;
+				case 2:
+					color = "yellow";
+					break;
+				case 3:
+					color = "green";
+					break;
+				case 4:
+					color = "red";
+					break;
+				}
+				if (color == null) {
+					return "<span>" + (String) model.get(property) + "</span>";
+				}
+				return "<span style='font-weight: bold;color:" + color + "'>"
 						+ (String) model.get(property) + "</span>";
 			}
 		};
@@ -637,6 +823,7 @@ public class Flowsheet implements EntryPoint {
 		String unit = numericData[0].getUnit();
 		column.setHeader(isNumeric ? ("Value (" + unit + ")") : ("Value"));
 		column.setWidth(60);
+		column.setRenderer(valueCellRenderer);
 		column.setAlignment(isNumeric ? HorizontalAlignment.CENTER
 				: HorizontalAlignment.LEFT);
 		col.add(column);
@@ -663,6 +850,7 @@ public class Flowsheet implements EntryPoint {
 							public void onSuccess(UIObs result) {
 								// display details of this obs
 								Window window = new Window();
+								window.setOnEsc(true);
 								ContentPanel panel = new ContentPanel();
 								panel.setLayout(new BorderLayout());
 								FormPanel form = new FormPanel();
@@ -686,7 +874,7 @@ public class Flowsheet implements EntryPoint {
 									form.add(new Text("Location: "
 											+ result.getLocation()));
 									form.add(new Text("Obs Result: "
-											+ result.getStringValue()));									
+											+ result.getStringValue()));
 								}
 								form.setHeaderVisible(false);
 								panel.add(form, lay);
@@ -695,8 +883,8 @@ public class Flowsheet implements EntryPoint {
 								window.setPlain(true);
 								window.setModal(true);
 								window.setBlinkModal(true);
-								window
-										.setHeading("Patient Observation Details");
+								window.setHeading("Details for Concept :"
+										+ patientObsDetailArray[2]);
 								window.setLayout(new FitLayout());
 								window.setMaximizable(true);
 								window.show();
@@ -725,25 +913,28 @@ public class Flowsheet implements EntryPoint {
 		resourcePanel.getElement().getStyle().setBorderColor("#99bbe8");
 		FieldSet bottomComponent = new FieldSet();
 		bottomComponent.add(resourcePanel);
-		Label showDetailLabel = new Label(
-				"The result you clicked");
+		Label showDetailLabel = new Label("The result you clicked");
 		showDetailLabel.getElement().getStyle().setBackgroundColor("yellow");
 		showDetailLabel.setWidth("50");
 		bottomComponent.add(showDetailLabel);
 		bottomComponent.getElement().getStyle().setBorderColor("#99bbe8");
 		cPanel.setBottomComponent(bottomComponent);
-		cPanel.setHeading("Flowsheet");
+		// cPanel.setHeading("Flowsheet");
+		cPanel.setHeaderVisible(false);
 		cPanel.setCollapsible(false);
 		return cPanel;
 	}
 
-	private LayoutContainer getGraph(final Integer conceptId) {
+	private LayoutContainer getGraph(final Integer conceptId,
+			final Integer selectedObsId) {
 
 		String url = "/openmrs/moduleResources/flowsheet/chart/open-flash-chart.swf";
 		final Chart chart = new Chart(url);
-		chart.setChartModel(getHorizontalBarChartModel(conceptId));
+		chart
+				.setChartModel(getHorizontalBarChartModel(conceptId,
+						selectedObsId));
 		FieldSet fs = new FieldSet();
-		fs.setHeading("Chart");
+		// fs.setHeading("Chart");
 		fs.setLayout(new FitLayout());
 		fs.add(chart, new FitData(0, 0, 20, 0));
 		fs.setCollapsible(false);
@@ -751,7 +942,8 @@ public class Flowsheet implements EntryPoint {
 		return fs;
 	}
 
-	public ChartModel getHorizontalBarChartModel(Integer conceptId) {
+	public ChartModel getHorizontalBarChartModel(Integer conceptId,
+			Integer selectedObsId) {
 
 		// Create a ChartModel with the Chart Title and some
 		// style attributes
@@ -766,20 +958,22 @@ public class Flowsheet implements EntryPoint {
 		YAxis ya = new YAxis();
 		ya.setGridColour("81aeea");
 		// Finding the min, max values of the results for the patient
-		double minObsValue,maxObsValue;
-		double[] obsValue=new double[numericData.length];
-		int count=0;
-		for (int index = 0; index <numericData.length; index++) {
-			if(numericData[index].getObsValue()!=null)
-			obsValue[count++]=(numericData[index].getObsValue()).doubleValue();
-			
+		double minObsValue, maxObsValue;
+		double[] obsValue = new double[numericData.length];
+		int count = 0;
+		for (int index = 0; index < numericData.length; index++) {
+			if (numericData[index].getObsValue() != null)
+				obsValue[count++] = (numericData[index].getObsValue())
+						.doubleValue();
+
 		}
 		Arrays.sort(obsValue);
-		minObsValue=obsValue[0];
-		maxObsValue=obsValue[count-1];
-		int interval = (int) ((maxObsValue*1.1 - minObsValue*0.9) / 10);
+		minObsValue = obsValue[0];
+		maxObsValue = obsValue[count - 1];
+		int interval = (int) ((maxObsValue * 1.1 - minObsValue * 0.9) / 10);
 		// Add the labels to the Y axis
-		ya.setRange(Math.floor(minObsValue*0.9),Math.ceil(maxObsValue*1.1),Math.abs(interval));
+		ya.setRange(Math.floor(minObsValue * 0.9),
+				Math.ceil(maxObsValue * 1.1), Math.abs(interval));
 
 		cm.setXAxis(xa);
 		LineChart lchart = new LineChart();
@@ -788,8 +982,14 @@ public class Flowsheet implements EntryPoint {
 			// if (numericData[numericData.length-index] != null) {
 			xa.addLabels(numericData[numericData.length - index].getObsDate()
 					.toString().substring(0, 10));
-			lchart.addDots(new Star(numericData[numericData.length - index]
-					.getObsValue()));
+			if (selectedObsId.intValue() == numericData[numericData.length
+					- index].getObsId().intValue()) {
+				lchart.addDots(new Star(numericData[numericData.length - index]
+						.getObsValue()));
+			} else {
+				lchart.addDots(new SolidDot(numericData[numericData.length
+						- index].getObsValue()));
+			}
 			// }
 		}
 		xa.setOffset(true);
@@ -808,17 +1008,39 @@ public class Flowsheet implements EntryPoint {
 				if (isNumeric) {
 					dataEntry = new ObsDataModel(numericData[index]
 							.getObsDate().toString().substring(0, 10),
-							numericData[index].getObsValue().toString());
+							numericData[index].getObsValue().toString(),
+							getObsValueRange(numericData[index]));
 				} else {
 					dataEntry = new ObsDataModel(numericData[index]
 							.getObsDate().toString().substring(0, 10),
-							numericData[index].getStringValue());
+							numericData[index].getStringValue(), 0);
 				}
 				dataEntry.set("obsId", numericData[index].getObsId());
 				data.add(dataEntry);
 			}
 		}
 		return data;
+	}
+
+	private int getObsValueRange(UIDetailedData data) {
+		int result = 0;
+		if (data.getHiCritical() != null
+				&& data.getObsValue() > data.getHiCritical()) {
+			return 4;
+		}
+		if (data.getHiNormal() != null
+				&& data.getObsValue() > data.getHiNormal()) {
+			return 3;
+		}
+		if (data.getLowCritical() != null
+				&& data.getObsValue() < data.getLowCritical()) {
+			return 2;
+		}
+		if (data.getLowNormal() != null
+				&& data.getObsValue() < data.getLowNormal()) {
+			return 1;
+		}
+		return result;
 	}
 }
 
@@ -856,6 +1078,12 @@ class ObsDataModel extends BaseModel {
 
 	}
 
+	public ObsDataModel(String obsDate, String value, int valueRange) {
+		set("obsDate", obsDate);
+		set("obsValue", value);
+		set("valueRange", valueRange);
+	}
+
 	Integer getObsId() {
 		return (Integer) get("obsId");
 	}
@@ -886,5 +1114,9 @@ class ObsDataModel extends BaseModel {
 
 	Date getDateValue() {
 		return (Date) get("dateValue");
+	}
+
+	int getValueRange() {
+		return (Integer) get("valueRange");
 	}
 }

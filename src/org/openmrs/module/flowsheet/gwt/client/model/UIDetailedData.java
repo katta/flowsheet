@@ -11,6 +11,13 @@ public class UIDetailedData implements IsSerializable{
 	private String conceptName;
 	private Double minValue;
 	private Double maxValue;
+	private Double hiNormal;
+	private Double hiCritical;
+	private Double lowNormal;
+	private Double lowCritical;
+	private String unit;
+	private String stringValue;
+	private boolean isNumeric;
 	public Double getHiNormal() {
 		return hiNormal;
 	}
@@ -51,13 +58,6 @@ public class UIDetailedData implements IsSerializable{
 	}
 
 
-	private Double hiNormal;
-	private Double hiCritical;
-	private Double lowNormal;
-	private Double lowCritical;
-	private String unit;
-	private String stringValue;
-	private boolean isNumeric;
 	 public UIDetailedData(){
 		 
 	 }

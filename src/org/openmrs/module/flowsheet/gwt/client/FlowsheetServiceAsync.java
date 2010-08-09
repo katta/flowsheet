@@ -14,8 +14,10 @@ public interface FlowsheetServiceAsync {
 	// public void getObsData(String patientId,
 	// AsyncCallback<PatientObsCollection[]> callback);
 	public void getPatientObsData(String patientId, Date startDate,
-			Date endDate, Set<Integer> conceptIds,
+			Date endDate, Set<Integer> conceptIds,Integer startIndex, Integer endIndex,
 			AsyncCallback<List<UIObs>> callback);
+	public void getObsCount(String patientId, Date startDate,
+			Date endDate, Set<Integer> conceptClassIds,AsyncCallback<Integer> callback);
 
 	public void getDateRange(String patientId, AsyncCallback<Date[]> callback);
 

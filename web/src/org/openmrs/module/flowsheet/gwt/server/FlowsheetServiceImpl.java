@@ -84,7 +84,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	// java.util.Date toDate,
 	// boolean includeVoidedObs)
 	public List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate, Set<Integer> conceptClassIds) {
+			Date endDate, Set<Integer> conceptClassIds, Integer startIndex, Integer endIndex) {
 
 		Locale locale = Context.getLocale();
 		List<UIObs> result = new ArrayList<UIObs>();
@@ -122,7 +122,20 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		List<Obs> obsList = service.getObservations(patientIdList, null,
 				conceptList, null, null, null, null, null, null, startDate,
 				endDate, false);
-		for (Obs obs : obsList) {
+		List<Obs> obsSubList;
+		if(obsList.size()>startIndex){
+			if(obsList.size()>endIndex){
+				obsSubList=obsList.subList(startIndex, endIndex);
+			}
+			else{
+				obsSubList=obsList.subList(startIndex, obsList.size());
+			}
+		}
+		else{
+			return null;
+		}
+		
+		for (Obs obs : obsSubList) {
 			UIObs uiObs = new UIObs();
 			if (obs.getObsId() != null) {
 				uiObs.setObsId(obs.getObsId());
@@ -247,6 +260,45 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 			result.add(uiObs);
 		}
 		return result;
+	}
+	
+	public Integer getObsCount(String patientId, Date startDate,
+			Date endDate, Set<Integer> conceptClassIds){
+		int totObsCount=0;
+		ObsService service= Context.getObsService();
+		List<Person> patientIdList = new ArrayList<Person>();
+		Patient patient = new Patient(Integer.valueOf(patientId));
+		patientIdList.add(patient);
+		List<Concept> conceptList;
+		if (conceptClassIds != null) {
+			if (conceptClassIds.isEmpty()) {
+				return 0;
+			}
+			ConceptService conceptService = Context.getConceptService();
+			conceptList = new ArrayList<Concept>();
+			for (Integer id : conceptClassIds) {
+				ConceptClass conceptClass = conceptService.getConceptClass(id);
+				if (conceptClass != null) {
+					List<Concept> concepts = conceptService
+							.getConceptsByClass(conceptClass);
+					if (concepts != null) {
+						for (Concept entry : concepts) {
+							if (entry != null) {
+								conceptList.add(entry);
+							}
+						}
+					}
+				}
+
+			}
+		} else {
+
+			conceptList = null;
+		}
+		totObsCount=service.getObservationCount(patientIdList, null, conceptList, null, null,null, null, startDate,endDate,false);
+		
+		return totObsCount;
+		
 	}
 
 	public Map<Integer, String> getConceptList(String patientId) {

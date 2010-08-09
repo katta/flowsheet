@@ -16,7 +16,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface FlowsheetService extends RemoteService {
 	// PatientObsCollection[] getObsData(String patientId);
 	List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate, Set<Integer> conceptIds);
+			Date endDate, Set<Integer> conceptIds,Integer startIndex, Integer endIndex);
+	Integer getObsCount(String patientId, Date startDate,
+			Date endDate, Set<Integer> conceptClassIds);
 
 	Date[] getDateRange(String patiendId);
 
