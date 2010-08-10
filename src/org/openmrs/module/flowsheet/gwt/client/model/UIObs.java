@@ -4,7 +4,16 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * This class represents the Obs class as a UI object model
+ * Necessary attributes of the Obs class are included for the purpose of mappting
+ * 
+ * @author umashanthi
+ *
+ */
+
 public class UIObs implements IsSerializable{
+	/* Attributes of the UIObs class */
 	private Integer obsId;
 	private Date obsDateTime;
 	private String locationId;
@@ -25,10 +34,12 @@ public class UIObs implements IsSerializable{
 	private UIDrug drugValue;
 	private Integer creator;
 	private Date createdDate;
- 
+	
+	/* Public no-arg constructor */
 	public UIObs(){
 		
 	}
+	/* Getters and Setters */
 	public Integer getObsId() {
 		return obsId;
 	}

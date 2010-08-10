@@ -4,7 +4,15 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class UIConcept implements IsSerializable{
+/**
+ * This class represents the Concept model as a UI object model Necessary
+ * attributes of the Concept class are included
+ * 
+ * @author umashanthi
+ * 
+ */
+public class UIConcept implements IsSerializable {
+	/* Attributes */
 	private String conceptId;
 	private String displayName;
 	private List<String> answers;
@@ -25,6 +33,14 @@ public class UIConcept implements IsSerializable{
 	private Double lowAbsolute;
 	private Double lowNormal;
 	private Double lowCritical;
+
+	/* Public no-arg constructor */
+	public UIConcept() {
+
+	}
+	
+	/* Getters and Setters */
+
 	public String getDataType() {
 		return dataType;
 	}
@@ -87,11 +103,6 @@ public class UIConcept implements IsSerializable{
 
 	public void setLowCritical(Double lowCritical) {
 		this.lowCritical = lowCritical;
-	}
-
-
-	public UIConcept(){
-		
 	}
 
 	public String getConceptId() {
@@ -189,6 +200,5 @@ public class UIConcept implements IsSerializable{
 	public void setNamed(boolean isNamed) {
 		this.isNamed = isNamed;
 	}
-
 
 }

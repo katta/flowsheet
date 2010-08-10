@@ -4,7 +4,14 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * This class models detailed data releated to an observation or conpcet
+ * 
+ * @author umashanthi
+ *
+ */
 public class UIDetailedData implements IsSerializable{
+	/* Attributes */
 	private Integer obsId;
 	private Date obsDate;
 	private Double obsValue;
@@ -18,6 +25,13 @@ public class UIDetailedData implements IsSerializable{
 	private String unit;
 	private String stringValue;
 	private boolean isNumeric;
+	
+	/* Public no-arg constructor */
+	public UIDetailedData(){
+		 
+	 }
+	
+	/* Getters and Setters */
 	public Double getHiNormal() {
 		return hiNormal;
 	}
@@ -56,12 +70,6 @@ public class UIDetailedData implements IsSerializable{
 	public void setLowCritical(Double lowCritical) {
 		this.lowCritical = lowCritical;
 	}
-
-
-	 public UIDetailedData(){
-		 
-	 }
-	
 	 
 	public void setObsDate(Date obsDate) {
 		this.obsDate = obsDate;

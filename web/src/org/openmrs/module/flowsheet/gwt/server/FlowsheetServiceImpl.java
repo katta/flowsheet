@@ -16,26 +16,25 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptNumeric;
-import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.api.ConceptService;
-import org.openmrs.api.EncounterService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.flowsheet.gwt.client.FlowsheetService;
-import org.openmrs.module.flowsheet.gwt.client.PatientObs;
-import org.openmrs.module.flowsheet.gwt.client.PatientObsCollection;
 import org.openmrs.module.flowsheet.gwt.client.model.UIConcept;
 import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+/**
+ * This class is the implementation of the FlowsheetService interface
+ * 
+ * @author umashanthi
+ * 
+ */
 public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		FlowsheetService {
 
@@ -43,6 +42,14 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 * @param patiendId
+	 *            PatientId of the patient whose data is to be retrieved
+	 * @return returns the start and end dates of the observation history of a
+	 *         patient
+	 */
 
 	public Date[] getDateRange(String patientId) {
 		Date[] range = new Date[2];
@@ -83,8 +90,26 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 	// java.util.Date fromDate,
 	// java.util.Date toDate,
 	// boolean includeVoidedObs)
+
+	/**
+	 * 
+	 * @param patientId
+	 *            PatientId of the patient whose history is to be retrieved
+	 * @param startDate
+	 *            Start date of the observation to retrieve
+	 * @param endDate
+	 *            End date of the observation to retrieve
+	 * @param conceptIds
+	 *            Set of conceptClass types
+	 * @param startIndex
+	 *            Start index of the observations to return
+	 * @param endIndex
+	 *            End index of the observations to return
+	 * @return A list of UIObs according to the passed in parameters
+	 */
 	public List<UIObs> getPatientObsData(String patientId, Date startDate,
-			Date endDate, Set<Integer> conceptClassIds, Integer startIndex, Integer endIndex) {
+			Date endDate, Set<Integer> conceptClassIds, Integer startIndex,
+			Integer endIndex) {
 
 		Locale locale = Context.getLocale();
 		List<UIObs> result = new ArrayList<UIObs>();
@@ -123,18 +148,16 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 				conceptList, null, null, null, null, null, null, startDate,
 				endDate, false);
 		List<Obs> obsSubList;
-		if(obsList.size()>startIndex){
-			if(obsList.size()>endIndex){
-				obsSubList=obsList.subList(startIndex, endIndex);
+		if (obsList.size() > startIndex) {
+			if (obsList.size() > endIndex) {
+				obsSubList = obsList.subList(startIndex, endIndex);
+			} else {
+				obsSubList = obsList.subList(startIndex, obsList.size());
 			}
-			else{
-				obsSubList=obsList.subList(startIndex, obsList.size());
-			}
-		}
-		else{
+		} else {
 			return null;
 		}
-		
+
 		for (Obs obs : obsSubList) {
 			UIObs uiObs = new UIObs();
 			if (obs.getObsId() != null) {
@@ -253,19 +276,30 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 			if (obs.getValueAsString(locale) != null) {
 				uiObs.setStringValue(obs.getValueAsString(locale));
 			}
-			// if(obs.getValueCoded()!=null &&
-			// obs.getValueCoded().getName().getName()!=null){
-			// uiObs.setCodedValue(obs.getValueCoded().getName().getName());
-			// }
+
 			result.add(uiObs);
 		}
 		return result;
 	}
-	
-	public Integer getObsCount(String patientId, Date startDate,
-			Date endDate, Set<Integer> conceptClassIds){
-		int totObsCount=0;
-		ObsService service= Context.getObsService();
+
+	/**
+	 * 
+	 * @param patientId
+	 *            PatientId of the patient whose history is to be retrieved
+	 * @param startDate
+	 *            Start date of the observation to count
+	 * @param endDate
+	 *            End date of the observation to count
+	 * @param conceptClassIds
+	 *            Set of conceptClass types
+	 * @return The number of observations for the give patientId matching the
+	 *         filter parameters
+	 */
+
+	public Integer getObsCount(String patientId, Date startDate, Date endDate,
+			Set<Integer> conceptClassIds) {
+		int totObsCount = 0;
+		ObsService service = Context.getObsService();
 		List<Person> patientIdList = new ArrayList<Person>();
 		Patient patient = new Patient(Integer.valueOf(patientId));
 		patientIdList.add(patient);
@@ -295,73 +329,19 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 
 			conceptList = null;
 		}
-		totObsCount=service.getObservationCount(patientIdList, null, conceptList, null, null,null, null, startDate,endDate,false);
-		
+		totObsCount = service.getObservationCount(patientIdList, null,
+				conceptList, null, null, null, null, startDate, endDate, false);
+
 		return totObsCount;
-		
+
 	}
 
-	public Map<Integer, String> getConceptList(String patientId) {
-		Map<Integer, String> conceptMap = new HashMap<Integer, String>();
-		ObsService service = Context.getObsService();
-
-		// retrieve all observations for this person
-		List<Obs> obsList = service.getObservationsByPerson(new Person(Integer
-				.valueOf(patientId)));
-		for (Obs obs : obsList) {
-			Concept concept = obs.getConcept();
-			if (concept != null && concept.getId() != null
-					&& concept.getDisplayString() != null) {
-				conceptMap.put(concept.getId(), concept.getDisplayString());
-			}
-		}
-
-		return conceptMap;
-	}
-
-	public List<UIObs> getDetailedData(String patientId, Date date,
-			Integer conceptId) {
-		List<UIObs> result = new ArrayList<UIObs>();
-		ObsService service = Context.getObsService();
-		List<Person> patientIdList = new ArrayList<Person>();
-		Patient patient = new Patient(Integer.valueOf(patientId));
-		patientIdList.add(patient);
-		List<Concept> conceptList;
-		if (conceptId != null) {
-			conceptList = new ArrayList<Concept>();
-			conceptList.add(new Concept(conceptId));
-
-		} else {
-			conceptList = null;
-		}
-		// retrieve all observations for this person
-		List<Obs> obsList = service.getObservations(patientIdList, null,
-				conceptList, null, null, null, null, null, null, date, null,
-				false);
-		for (Obs obs : obsList) {
-			if (obs != null) {
-				UIObs obj = new UIObs();
-				if (obs.getId() != null) {
-					obj.setObsId(obs.getId());
-				}
-				if (obs.getLocation() != null
-						&& obs.getLocation().toString() != null) {
-					obj.setLocation(obs.getLocation().toString());
-				}
-				if (obs.getComment() != null) {
-					obj.setComment(obs.getComment());
-				}
-				if (obs.getValueCodedName() != null
-						&& obs.getValueCodedName().toString() != null) {
-					obj.setCodedValue(obs.getValueCodedName().toString());
-				}
-				obj.setLocationId("ANDLFD**$$&&%");
-				result.add(obj);
-			}
-
-		}
-		return result;
-	}
+	/**
+	 * 
+	 * @param obsId
+	 *            Id of the observation to return
+	 * @return The observations for the obsId as a UIObs objcet
+	 */
 
 	public UIObs getObsDetails(Integer obsId) {
 		UIObs result = null;
@@ -370,7 +350,7 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		Obs obs = service.getObs(obsId);
 		if (obs != null) {
 			result = new UIObs();
-			
+
 			if (obs.getObsId() != null) {
 				result.setObsId(obs.getObsId());
 			}
@@ -484,6 +464,19 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param patientId
+	 *            PatientId of the patient whose data is to be retrieved
+	 * @param conceptId
+	 *            The conceptId of the Concept the Observation belongs to
+	 * @param startDate
+	 *            Start date of the observation to retrieve
+	 * @param endDate
+	 *            End date of the observation to retrieve
+	 * @return
+	 */
+
 	public UIDetailedData[] getDetailedHistory(String patientId,
 			Integer conceptId, Date startDate, Date endDate) {
 		List<UIDetailedData> resultList = new ArrayList<UIDetailedData>();
@@ -544,17 +537,21 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 									data.setMaxValue(conceptNumeric
 											.getHiAbsolute());
 								}
-								if(conceptNumeric.getHiCritical()!=null){
-									data.setHiCritical(conceptNumeric.getHiCritical());
+								if (conceptNumeric.getHiCritical() != null) {
+									data.setHiCritical(conceptNumeric
+											.getHiCritical());
 								}
-								if(conceptNumeric.getHiNormal()!=null){
-									data.setHiNormal(conceptNumeric.getHiNormal());
+								if (conceptNumeric.getHiNormal() != null) {
+									data.setHiNormal(conceptNumeric
+											.getHiNormal());
 								}
-								if(conceptNumeric.getLowCritical()!=null){
-									data.setLowCritical(conceptNumeric.getLowCritical());
+								if (conceptNumeric.getLowCritical() != null) {
+									data.setLowCritical(conceptNumeric
+											.getLowCritical());
 								}
-								if(conceptNumeric.getLowNormal()!=null){
-									data.setLowNormal(conceptNumeric.getLowNormal());
+								if (conceptNumeric.getLowNormal() != null) {
+									data.setLowNormal(conceptNumeric
+											.getLowNormal());
 								}
 							}
 							resultList.add(data);
@@ -574,6 +571,12 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param conceptId
+	 *            Id of the Concept the observation relates to
+	 * @return The array of conceptName, unit, MinValue and MaxValue
+	 */
 	// 0- conceptName , 1- unit , 2- minValue, 3- maxValue
 	public String[] getDataForNumericValueHistory(Integer conceptId) {
 		String[] result = new String[4];
@@ -606,6 +609,17 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param patientId
+	 *            PatientId of the patient whose data is to be retrieved
+	 * @param date
+	 *            Date of the observation
+	 * @param conceptId
+	 *            Id of the Concept the observation relates to
+	 * @return The patiendIdentifier, concpetName and conceptDescription of the
+	 *         Observation for the passed parameters
+	 */
 	public String[] getPatientObsDetails(String patientId, Date date,
 			Integer conceptId) {
 		String[] result = null;
@@ -658,6 +672,17 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 		}
 		return result;
 	}
+
+	/**
+	 * 
+	 * @param patientId
+	 *            PatientId of the patient whose data is to be retrieved
+	 * @param startDate
+	 *            Start date of the observation
+	 * @param endDate
+	 *            End date of the observation
+	 * @return List of ConceptClass and their ids
+	 */
 
 	public String[][] getConceptClassList(String patientId, Date startDate,
 			Date endDate) {

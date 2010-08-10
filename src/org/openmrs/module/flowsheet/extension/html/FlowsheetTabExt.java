@@ -1,9 +1,15 @@
 package org.openmrs.module.flowsheet.extension.html;
 
 import org.openmrs.module.web.extension.PatientDashboardTabExt;
+/**
+ * Responsible to adding a tab to the Patient Dashboard 
+ * 
+ * @author umashanthi
+ *
+ */
 
 public class FlowsheetTabExt extends PatientDashboardTabExt {
-	// TODO: add string constants to message properties -u
+	
 	@Override
 	public String getPortletUrl() {
 		return "flowsheetForm";

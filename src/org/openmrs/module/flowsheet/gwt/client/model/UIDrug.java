@@ -2,7 +2,15 @@ package org.openmrs.module.flowsheet.gwt.client.model;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * This class represents the Drug class as a UI object model
+ * 
+ * @author umashanthi
+ *
+ */
+
 public class UIDrug implements IsSerializable{
+	/* Attributes */
 	private Integer drugId;
 	private double storageStrength;
 	private String fullname;
@@ -10,9 +18,13 @@ public class UIDrug implements IsSerializable{
 	private double minimumDatilyDosage;
 	private String unit;
 	private boolean isCombination;
+	
+	/* Public no-arg constructor */
 	public UIDrug(){
 		
 	}
+	
+	/* Getters and Setters */
 	public Integer getDrugId() {
 		return drugId;
 	}

@@ -4,19 +4,28 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * This class represents the Encounter as a UI model object
+ * Required field of the Encounter class are included for mapping
+ * 
+ * @author umashanthi
+ *
+ */
 public class UIEncounter implements IsSerializable {
-
+	/* Attributes of the UIEncounter class */
 	private Integer encounterId;
 	private Date encounterDateTime;
 	private String encounterType;
 	private UIObs[] allObs;
 	private String location;
 	private String provider;
-
+	/* 
+	 * Constructor
+	 */
 	public UIEncounter() {
 
 	}
-
+	/* Getters and Setters */
 	public Integer getEncounterId() {
 		return encounterId;
 	}

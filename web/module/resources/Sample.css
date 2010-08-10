@@ -51,7 +51,7 @@
 	color: red;
 }
 
-.label1 {
+.header_label {
  font-size: 12px;
  font-weight: bold;
  font-family: cursive;	
@@ -60,7 +60,7 @@
  color: #20448c;
  }
  
- .label2 {
+ .text_label {
  font-size: 10px;
  font-weight: bold;
  font-family: sans-serif;	
