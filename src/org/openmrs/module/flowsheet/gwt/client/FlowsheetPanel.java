@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
+import org.openmrs.module.flowsheet.gwt.client.model.UIEncounter;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
 import com.extjs.gxt.charts.client.Chart;
@@ -907,11 +908,25 @@ public class FlowsheetPanel extends LayoutContainer {
 											+ result.getLocation()));
 									form.add(new Text("Obs Result: "
 											+ result.getStringValue()));
+									if(result.getEncounter()!=null){
+										UIEncounter encounter=result.getEncounter();
+										form.add(new Text("Encounter Date: "+((encounter.getEncounterDateTime()!=null)?encounter.getEncounterDateTime().toString().substring(0,10):" -- empty -- ")));
+										form.add(new Text("Encounter Type: "+((encounter.getEncounterType()!=null)?encounter.getEncounterType():" -- empty -- ")));
+										form.add(new Text("Encounter Created Date: "+((encounter.getDateCreated()!=null)?encounter.getDateCreated().toString().substring(0,10):" -- empty -- ")));
+										form.add(new Text("Encounter Creator: "+((encounter.getCreator()!=null)?encounter.getCreator():" -- empty -- ")));
+									}
+									else{
+										form.add(new Text("Encounter Date: -- empty --"));
+										form.add(new Text("Encounter Type: -- empty --"));
+										form.add(new Text("Encounter Created Date: -- empty --"));
+										form.add(new Text("Encounter Creator: -- empty --"));
+									}
+									form.add(new Text("Comments: "+((result.getComment()!=null)?result.getComment():" -- empty -- ")));
 								}
 								form.setHeaderVisible(false);
 								panel.add(form, lay);
 								window.add(panel);
-								window.setSize(400, 300);
+								window.setSize(600, 300);
 								window.setPlain(true);
 								window.setModal(true);
 								window.setBlinkModal(true);

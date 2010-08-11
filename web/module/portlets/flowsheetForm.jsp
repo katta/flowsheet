@@ -36,7 +36,7 @@
   <!-- to create a completely dynamic UI.        -->
   <!--                                           -->
   <body>
-
+ <openmrs:require privilege="View Patients" otherwise="/login.htm" redirect="/admin/index.htm" />
     <!-- OPTIONAL: include this if you want history support -->
     <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
     

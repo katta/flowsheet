@@ -16,6 +16,7 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptNumeric;
+import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Person;
@@ -25,6 +26,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.flowsheet.gwt.client.FlowsheetService;
 import org.openmrs.module.flowsheet.gwt.client.model.UIConcept;
 import org.openmrs.module.flowsheet.gwt.client.model.UIDetailedData;
+import org.openmrs.module.flowsheet.gwt.client.model.UIEncounter;
 import org.openmrs.module.flowsheet.gwt.client.model.UIObs;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -458,6 +460,26 @@ public class FlowsheetServiceImpl extends RemoteServiceServlet implements
 
 			if (obs.getValueAsString(locale) != null) {
 				result.setStringValue(obs.getValueAsString(locale));
+			}
+			if(obs.getComment()!=null){
+				result.setComment(obs.getComment());
+			}
+			if(obs.getEncounter()!=null){
+				UIEncounter uiEncounter=new UIEncounter();
+				Encounter encounter=obs.getEncounter();
+				if(encounter.getEncounterDatetime()!=null){
+					uiEncounter.setEncounterDateTime(encounter.getEncounterDatetime());
+				}
+				if(encounter.getEncounterType()!=null){
+					uiEncounter.setEncounterType(encounter.getEncounterType().getName());
+				}
+				if(encounter.getCreator()!=null){
+					uiEncounter.setCreator(encounter.getCreator().getName());
+				}
+				if(encounter.getDateCreated()!=null){
+					uiEncounter.setDateCreated(encounter.getDateCreated());
+				}
+				result.setEncounter(uiEncounter);
 			}
 		}
 

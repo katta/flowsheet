@@ -19,6 +19,8 @@ public class UIEncounter implements IsSerializable {
 	private UIObs[] allObs;
 	private String location;
 	private String provider;
+	private String creator;
+	private Date dateCreated;
 	/* 
 	 * Constructor
 	 */
@@ -72,6 +74,18 @@ public class UIEncounter implements IsSerializable {
 
 	public void setProvider(String provider) {
 		this.provider = provider;
+	}
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+	public String getCreator() {
+		return creator;
+	}
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+	public Date getDateCreated() {
+		return dateCreated;
 	}
 
 }
