@@ -5,7 +5,7 @@
 	<!-- Flowsheet Module Properties -->
 	<id>flowsheet</id>
 	<name>Flowsheet Module</name>
-	<version>1.0</version>
+	<version>0.1</version>
 	<package>org.openmrs.module.@MODULE_ID@</package>
 	<author>umashanthi</author>
 	<description>
