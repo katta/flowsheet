@@ -1,0 +1,103 @@
+<html>
+<head>
+    <!--<script src="scripts/test/jquery-1.2.6.js"></script>-->
+
+    <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery-ui.custom.min.js"></script>
+    <script type="text/javascript" src="../../main/webapp/resources/date.js"></script>
+    <script type="text/javascript" src="../../main/webapp/resources/grid.locale-en.js"></script>
+    <script type="text/javascript" src="../../main/webapp/resources/jquery.jqGrid.min.js"></script>
+
+    <script src="scripts/test/jquery.fn.js"></script>
+    <script src="scripts/test/jquery.print.js"></script>
+
+    <link rel="stylesheet" href="../../main/webapp/resources/jslider.css" type="text/css">
+    <script type="text/javascript" src="../../main/webapp/resources/jquery.dependClass.js"></script>
+    <script type="text/javascript" src="../../main/webapp/resources/fcbkcomplete_2_75.js"></script>
+
+    <script src="scripts/test/screw.builder.js"></script>
+    <script src="scripts/test/screw.matchers.js"></script>
+    <script src="scripts/test/screw.events.js"></script>
+    <script src="scripts/test/screw.behaviors.js"></script>
+    <script src="scripts/test/flowsheet.spec.js"></script>
+
+
+    <script src="../../main/webapp/resources/flowsheet.js"></script>
+    <script type="text/javascript" src="scripts/test/sampleFlowsheetData.js"></script>
+    <script type="text/javascript" src="scripts/jquery.flot.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="../../main/webapp/resources/uicustom.css"/>
+    <!-- adding custom css -->
+
+
+    <link rel="stylesheet" href="./scripts/test/screw.css">
+</head>
+<body>
+<div id="dom_test" style="position: absolute; left: -9999"></div>
+
+<table class="table_group">
+    <tr>
+        <td class="flowsheet_left_panel">
+            <table>
+                <tr>
+                    <td>
+                        <div id="dateRangeText" class="slider_title"> Date Range</div>
+                        <div id="dateFrom" class="slider_info"> From : <label id="sliderInfoFrom"></label></div>
+                        <div id="dateTo" class="slider_info"> To : <label id="sliderInfoTo"></label></div>
+
+                        <div class="layout-slider">
+                             <span class="slider">
+                            <input id="Slider1" type="slider" name="price"/></span>
+                        </div>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+
+                        <div id="classTypeList">
+                            <div class="slider_title">Result Types</div>
+                        </div>
+
+                    </td>
+                </tr>
+                <tr align="left">
+                    <td>
+                        <div class="searchPanel">
+                            <select id="conceptSelect" name="conceptSelect"> </select>
+
+                            <div class="searchButtonPanel">
+                                <input type="button" id="search" name="search" value="Search"/><br/>
+                                <input type="button" id="clear" name="clear" value="Clear"/>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+        <td class="flowsheet_grid">
+            <table id="flowsheet">
+            </table>
+
+        </td>
+</table>
+
+<div id="obsInfoDialog" class="">
+    <div id="obsInfo" class="obsInfoPanel">
+        <div id="maximizeIcon" class="maximizeIcon ui-icon ui-icon-arrowthick-2-ne-sw"></div>
+        <div id="obsInfoLabel" class="obsInfoLabel"></div>
+        <div id="conceptDesc" class="conceptDesc"></div>
+
+        <div id="numericObsGraph" class="obsGraph"></div>
+        <div id="numericObsGraphLegend" class="obsGraphLegend"></div>
+        <div id="obsInfoGrid" class="obsInfoGrid">
+        </div>
+
+    </div>
+</div>
+
+<div id="positionTest">
+
+</div>
+</body>
+</html>
