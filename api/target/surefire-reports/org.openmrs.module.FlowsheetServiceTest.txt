@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.openmrs.module.FlowsheetServiceTest
--------------------------------------------------------------------------------
-Tests run: 11, Failures: 0, Errors: 0, Skipped: 2, Time elapsed: 9.981 sec
