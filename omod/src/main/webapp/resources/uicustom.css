@@ -264,3 +264,7 @@
     background-color: #d2deee;
     width: 600px;
 }
+
+.ui-state-highlight td{
+    background: #FBEC88;
+}

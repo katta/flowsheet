@@ -80,13 +80,21 @@
         <div id="numericObsGraphLegend" class="obsGraphLegend"></div>
         <div id="obsInfoGrid" class="obsInfoGrid">
         </div>
-
     </div>
 </div>
+    <div id="imageDialog" title="Image">
+    </div>
 
 <script type="text/javascript"><!--
-    //to be refactored - Balaji/Khaarthiga
+    
+    jQuery("#imageDialog").dialog({
+             bgiframe: true, autoOpen: false, width:'auto', height:'auto', modal: true
+           });
 
+      var loadImage = function(imgPath){
+           jQuery("#imageDialog").html("<img src='"+imgPath+"'/>");
+           jQuery('#imageDialog').dialog('open');
+    }
     jQuery(document).ready(function() {
 
         var patientIdValue = $j('#patientId').val();
@@ -101,32 +109,25 @@
 		var StopWaiting = function (field) {
 		    jQuery(field).unblock();
 		};
+
+
         var flowsheetObj = new Flowsheet("flowsheet");
         var data = {};
         var classes = new ConceptClass("#classTypeList");
         var obsInfo = new ObsInfo("#obsInfo", "#obsInfoGrid", "#numericObsGraph",
                 "#numericObsGraphLegend", "#obsInfoLabel", "#maximizeIcon", "#obsInfoDialog");
 
-
-        var createErrorMessage = function(entries) {
-            if (!entries || entries.length == 0) {
-                jQuery("#flowsheet").append(jQuery('<tr>')
-                        .append(jQuery('<td>')
-                        .append(jQuery('<div style="padding:10px">')
-                        .text('Undo some filters to view the observations'))));
-            }
-        }
-
         var filter = function() {
 			WaitMsg('#flowsheet_grid_div');
             var from = jQuery('#sliderInfoFrom').text();
             var to = jQuery('#sliderInfoTo').text();
             var list = getSearchEntries();
-            var entries = data.filter(new DateObject(from, to), classes.getSelected(), list);
-            flowsheetObj.reload(entries);
+            var range = new DateObject(from, to);
+            var entries = data.filter(range, classes.getSelected(), list);
             conceptNameSearch.render(data.entries, filter);
-            createErrorMessage(entries);
-			StopWaiting('#flowsheet_grid_div');
+            flowsheetObj.reload(entries);
+            flowsheetObj.createErrorMessage(entries);
+	        StopWaiting('#flowsheet_grid_div');
         }
 
         var dateRange = new DateRange(jQuery("#Slider1"), filter);
@@ -136,9 +137,14 @@
         var onClickHandlerForGrid = function(rowid, iCol, cellcontent, e) {
             e.stopPropagation();
             var conceptId = jQuery("#flowsheet").find("#"+rowid).find('td:nth-child(5)').html();
+            if(data.isConceptComplex(conceptId)==null){
+            jQuery('#obsInfoDialog').show();
             var searchResult = data.searchForConceptId(conceptId);
             obsInfo.reload(searchResult,jQuery("#flowsheet").find("#"+rowid));
             obsInfo.setConceptDesc("#conceptDesc",data.getConceptDesc(conceptId));
+            }else{
+                jQuery('#obsInfoDialog').hide();
+            }
         }
 
         jQuery("body").click(function() {
@@ -201,10 +207,6 @@
             });
             return list
         }
-
-
-
-
     });
 --></script>
 

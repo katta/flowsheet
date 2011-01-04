@@ -3,6 +3,8 @@ package org.openmrs.module.flowsheet;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.openmrs.api.context.Context;
+
 public class Flowsheet {
 
 	private final List<FlowsheetEntry> entries;
@@ -10,12 +12,13 @@ public class Flowsheet {
     private final Map<Integer,ConceptInfo> conceptMap;
     private List<String> conceptClasses = null;
     private final List<String> obsDates = new ArrayList<String>();
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
+    private static SimpleDateFormat format = Context.getDateFormat();
+    private String datePattern;
 	public Flowsheet(List<FlowsheetEntry> flowsheetEntries) {
-		this.entries = flowsheetEntries;
+        this.entries = flowsheetEntries;
         this.conceptMap = computeConceptMap(flowsheetEntries);
-	}
+        this.datePattern=format.toPattern();
+    }
 
     public Flowsheet(List<FlowsheetEntry> flowsheetEntries,List<String> conceptClasses,List<Date> obsDates) {
         this(flowsheetEntries);
@@ -52,4 +55,9 @@ public class Flowsheet {
     public List<String> getObsDates() {
         return obsDates;
     }
+
+    public String getDatePattern(){
+        return datePattern;
+    }
+
 }

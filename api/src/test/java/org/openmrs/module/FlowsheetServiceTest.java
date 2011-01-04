@@ -1,5 +1,8 @@
 package org.openmrs.module;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +21,6 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class FlowsheetServiceTest extends BaseModuleContextSensitiveTest {
 
-//     protected static final String INITIAL_DATA_XML = "resources/org/openmrs/module/flowsheetTestDataSet.xml";
-//     protected static final String INITIAL_DATA_XML = "../../../../../resources/org/openmrs/module/flowsheetTestDataSet.xml";
      protected static final String INITIAL_DATA_XML = "org/openmrs/module/flowsheetTestDataSet.xml";
 
 	private List<FlowsheetEntry> getFlowSheetEntry(int personId) {
@@ -40,17 +41,27 @@ public class FlowsheetServiceTest extends BaseModuleContextSensitiveTest {
 
 	}
 
-	@Test
-	public void shouldReturnObservationsForPerson() {
-		Assert.assertEquals(0, getFlowSheetEntry(1).size());
-		Assert.assertEquals(9, getFlowSheetEntry(7).size());
-	}
+    @Test
+    public void shouldReturnObservationsForPerson() {
+        Assert.assertEquals(0, getFlowSheetEntry(1).size());
+        Assert.assertEquals(10, getFlowSheetEntry(7).size());
+    }
 
 
-	@Test
-	public void shouldReturnConceptNameForEachObservation() {
-		Assert.assertEquals("WT", flowsheet.getConceptMap().get(5089).getName());
-	}
+    @Test
+    public void shouldReturnConceptShortNameForEachObservation() {
+        Assert.assertEquals("WT", flowsheet.getConceptMap().get(5089).getShortName());
+    }
+
+    @Test
+    public void shouldReturnConceptNameForEachObservation() {
+        Assert.assertEquals("WEIGHT (KG)", flowsheet.getConceptMap().get(5089).getName());
+    }
+
+    @Test
+    public void shouldReturnSynonymsForEachObservation() {
+        Assert.assertEquals(0, flowsheet.getConceptMap().get(5089).getSynonyms().size());
+    }
 
 
 	@Test
@@ -68,10 +79,19 @@ public class FlowsheetServiceTest extends BaseModuleContextSensitiveTest {
 		Assert.assertEquals("Test", flowsheet.getConceptMap().get(5089).getClassType());
 	}
 
-	@Test
-	public void shouldReturnDateForEachObservation() {
-		Assert.assertEquals("2008-08-19", entry.getDate());
-	}
+    @Test
+    public void shouldReturnDateForEachObservation() {
+        SimpleDateFormat targetformat=Context.getDateFormat();
+        SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd");
+        Date date= null;
+        try {
+            date = format.parse("2008-08-19");
+            Assert.assertEquals(targetformat.format(date), entry.getDate());
+        } catch (ParseException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+    }
 
 	@Test
 	public void shouldReturnUnitForEachObservation() throws Exception {
@@ -81,27 +101,34 @@ public class FlowsheetServiceTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldReturnCommentObservation() throws Exception {
 		FlowsheetEntry entry = getFlowSheetEntry(7).get(0);
-		Assert.assertEquals("balaji", entry.getComment());
+		Assert.assertEquals("SampleComment", entry.getComment());
 	}
 
-	@Test
-	@Ignore("Add additional data set to test this")
-	public void shouldReturnHiValueEachObservation() throws Exception {
-		Assert.assertEquals("250.0", flowsheet.getConceptMap().get(5089).getNumeric().getHi().toString());
-	}
-	
-	@Test
-	@Ignore("Add additional data set to test this")
-	public void shouldReturnHiLowAsEmpty() throws Exception {
-		Assert.assertEquals("250.0", flowsheet.getConceptMap().get(5089).getNumeric().getHi());
-		Assert.assertEquals("", flowsheet.getConceptMap().get(5089).getNumeric().getLow());
-	}
+    @Test
+    @Ignore("Add additional data set to test this")
+    public void shouldReturnHiValueEachObservation() throws Exception {
+        Assert.assertEquals("250.0", flowsheet.getConceptMap().get(5089).getNumeric().getHi().toString());
+    }
+
+    @Test
+    @Ignore("Add additional data set to test this")
+    public void shouldReturnHiLowAsEmpty() throws Exception {
+        Assert.assertEquals("250.0", flowsheet.getConceptMap().get(5089).getNumeric().getHi());
+        Assert.assertEquals("", flowsheet.getConceptMap().get(5089).getNumeric().getLow());
+    }
 
 
     @Test
-    public void shouldReturnConceptDesc(){
+    public void shouldReturnConceptDesc() {
         Map<Integer, ConceptInfo> conceptMap = flowsheet.getConceptMap();
-        Assert.assertEquals("Patient's weight in kilograms.",conceptMap.get(5089).getDesc());
-        Assert.assertEquals("Measure of CD4 (T-helper cells) in blood",conceptMap.get(5497).getDesc());
+        Assert.assertEquals("Patient's weight in kilograms.", conceptMap.get(5089).getDesc());
+        Assert.assertEquals("Measure of CD4 (T-helper cells) in blood", conceptMap.get(5497).getDesc());
+    }
+
+    @Test
+    public void shouldReturnImageIdForComplexType() {
+        Map<Integer, ConceptInfo> conceptMap = flowsheet.getConceptMap();
+        Assert.assertEquals("17", conceptMap.get(5090).getImageId());
+        Assert.assertEquals(null, conceptMap.get(5089).getImageId());
     }
 }

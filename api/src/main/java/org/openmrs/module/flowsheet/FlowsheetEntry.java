@@ -4,13 +4,16 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
 
 public class FlowsheetEntry {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat format = Context.getDateFormat();
     private Obs obs;
+    private int rowNumber;
 
-    public FlowsheetEntry(Obs obs) {
+    public FlowsheetEntry(int rowNumber, Obs obs) {
+        this.rowNumber = rowNumber;
         this.obs = obs;
     }
 
@@ -33,5 +36,9 @@ public class FlowsheetEntry {
 
     public String getComment() {
         return obs.getComment() == null ? "" : obs.getComment();
+    }
+
+    public int getRowNumber() {
+        return rowNumber;
     }
 }
