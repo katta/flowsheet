@@ -44,7 +44,7 @@ public class FlowsheetServiceTest extends BaseModuleContextSensitiveTest {
     @Test
     public void shouldReturnObservationsForPerson() {
         Assert.assertEquals(0, getFlowSheetEntry(1).size());
-        Assert.assertEquals(10, getFlowSheetEntry(7).size());
+        Assert.assertEquals(13, getFlowSheetEntry(7).size());
     }
 
 
@@ -100,7 +100,7 @@ public class FlowsheetServiceTest extends BaseModuleContextSensitiveTest {
 
 	@Test
 	public void shouldReturnCommentObservation() throws Exception {
-		FlowsheetEntry entry = getFlowSheetEntry(7).get(0);
+		FlowsheetEntry entry = getFlowSheetEntry(7).get(12);
 		Assert.assertEquals("SampleComment", entry.getComment());
 	}
 
