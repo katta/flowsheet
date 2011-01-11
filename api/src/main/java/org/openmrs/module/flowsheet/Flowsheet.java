@@ -12,7 +12,7 @@ public class Flowsheet {
     private final Map<Integer,ConceptInfo> conceptMap;
     private List<String> conceptClasses = null;
     private final List<String> obsDates = new ArrayList<String>();
-    private static SimpleDateFormat format = Context.getDateFormat();
+    private SimpleDateFormat format = Context.getDateFormat();
     private String datePattern;
 	public Flowsheet(List<FlowsheetEntry> flowsheetEntries) {
         this.entries = flowsheetEntries;

@@ -8,7 +8,7 @@ import org.openmrs.api.context.Context;
 
 public class FlowsheetEntry {
 
-    private static SimpleDateFormat format = Context.getDateFormat();
+    private SimpleDateFormat format = Context.getDateFormat();
     private Obs obs;
     private int rowNumber;
 
