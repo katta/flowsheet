@@ -140,7 +140,7 @@
             if(data.isConceptComplex(conceptId)==null){
             jQuery('#obsInfoDialog').show();
             var searchResult = data.searchForConceptId(conceptId);
-            obsInfo.reload(searchResult,jQuery("#flowsheet").find("#"+rowid));
+            obsInfo.reload(searchResult,jQuery("#flowsheet").find("#"+rowid),data.datePattern);
             obsInfo.setConceptDesc("#conceptDesc",data.getConceptDesc(conceptId));
             }else{
                 jQuery('#obsInfoDialog').hide();
@@ -161,7 +161,7 @@
 
         renderflowsheet = function(json) {
             data = new FlowsheetData(json);
-            flowsheetObj.render(data.entries, onClickHandlerForGrid);
+            flowsheetObj.render(data.entries, onClickHandlerForGrid, data.datePattern);
             classes.render(data.getConceptClasses());
             classes.change(filter);
             classes.attachSelectClearAll(filter);

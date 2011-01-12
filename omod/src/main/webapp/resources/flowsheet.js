@@ -26,7 +26,7 @@ var Flowsheet = function(tableId) {
         jQuery("#" + tableId).jqGrid('filterToolbar', {autosearch:true,searchOnEnter:true,multipleSearch:true });
     }
 
-    this.render = function(entries, onClickHandlerForGrid) {
+    this.render = function(entries, onClickHandlerForGrid,datePattern) {
         if (!entries || entries.length == 0) {
             jQuery("#" + tableId).append(jQuery('<tr>')
                     .append(jQuery('<td>')
@@ -40,7 +40,7 @@ var Flowsheet = function(tableId) {
             height: 'auto',
             rowNum: 10000000,
             colModel:[
-                {name:'date', width:150, sorttype:'date', formatter:'date', datefmt:'d/m/Y', klass:'firstCol'},
+                {name:'date', width:150, sorttype:'date',sortorder:'desc', datefmt:datePattern,  klass:'firstCol'},
                 {name:'name', width:180,formatter:nameFormatter},
                 {name:'value',width:100,formatter:valueFormatter},
                 {name:'low',width:100,formatter:rangeFormatter},
@@ -55,7 +55,7 @@ var Flowsheet = function(tableId) {
             onCellSelect:onClickHandlerForGrid,
             groupingView : { groupField : ['date'], groupColumnShow : [false], groupText : ['<b>{0}</b>'], groupCollapse : true, groupOrder: ['desc'], groupCollapse : false },
             hoverrows:false,
-            viewrecords: false, sortorder: "desc",
+            viewrecords: false,
             loadComplete:hideColumnHeaders
         });
         createSearchToolBar();
@@ -465,13 +465,13 @@ var ObsInfo = function(obsInfoElem, numericObsInfoGrid, numericObsGraph, numeric
 
     }
 
-    var renderObsInfo = function(entries) {
+    var renderObsInfo = function(entries,datePattern) {
         jQuery(obsInfoElem).show();
         jQuery(numericObsInfoGrid).empty();
         if (isNumericObs(entries)) {
             jQuery(numericObsGraph).show();
             jQuery(numericObsGraphLegend).show();
-            var dataToPlot = convertEntriesToPlotArray(entries);
+            var dataToPlot = convertEntriesToPlotArray(entries,datePattern);
             jQuery.plot(numericObsGraph, [
                 {label:"Normal Hi",data: dataToPlot.criticalRangeHi,lines: { show: true, fill: false,color:"#d18b2c" }},
                 {label:"Normal Low",data: dataToPlot.criticalRangeLow,lines: { show: true, fill: false,color:"#d18b2c" }},
@@ -493,11 +493,11 @@ var ObsInfo = function(obsInfoElem, numericObsInfoGrid, numericObsGraph, numeric
         renderObsInfoGrid(entries, "lightPro", requiredKey);
     }
 
-    this.reload = function(entries, positionTargetElem) {
+    this.reload = function(entries, positionTargetElem,datePattern) {
         jQuery(obsInfoElem).attr("class", "obsInfoPanel");
         jQuery(obsInfoLabel).show();
         jQuery(maximizeIcon).show();
-        renderObsInfo(entries);
+        renderObsInfo(entries,datePattern);
 
         jQuery(obsInfoElem).position({
             of: positionTargetElem,
@@ -536,15 +536,15 @@ var ObsInfo = function(obsInfoElem, numericObsInfoGrid, numericObsGraph, numeric
         hideObsInfo();
     }
 
-    var convertEntriesToPlotArray = function(entries) {
+    var convertEntriesToPlotArray = function(entries,datePattern) {
         var dataToPlot = {}; //json containing, critical range array and value array
         var criticalRangeHi = Array();
         var criticalRangeLow = Array();
         var values = Array();
         jQuery.each(entries, function(index, entry) {
-            values.push([Date.parse(entry.date).getTime(),entry.value]);
-            criticalRangeHi.push([Date.parse(entry.date).getTime(),entry.numeric().hi]);
-            criticalRangeLow.push([Date.parse(entry.date).getTime(),entry.numeric().low]);
+            values.push([Date.parseExact(entry.date,datePattern).getTime(),entry.value]);
+            criticalRangeHi.push([Date.parseExact(entry.date,datePattern).getTime(),entry.numeric().hi]);
+            criticalRangeLow.push([Date.parseExact(entry.date,datePattern).getTime(),entry.numeric().low]);
         })
         dataToPlot.values = values;
         dataToPlot.criticalRangeHi = criticalRangeHi;

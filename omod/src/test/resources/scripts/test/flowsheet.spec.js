@@ -23,13 +23,13 @@ Screw.Unit(function() {
                 }),
                 it("should display date of the observation", function() {
                     var date = $('#2').find('td:nth-child(1)').html();
-                    expect(date).to(equal, "12/01/2002");//formatted date
+                    expect(date).to(equal, "2002-01-12");//formatted date
                 }),
                 it("should display observation in reverse chronological order", function() {
                     var firstRowDate = $('#1').find('td:nth-child(1)').html();
                     var secondRowDate = $('#2').find('td:nth-child(1)').html();
-                    expect(firstRowDate).to(equal, "12/01/2010");
-                    expect(secondRowDate).to(equal, "12/01/2002");
+                    expect(firstRowDate).to(equal, "2010-01-12");
+                    expect(secondRowDate).to(equal, "2002-01-12");
                 }),
                 it("should display observations grouped by date", function() {
                     var firstGroupRowDate = $('#flowsheetghead_0').find('td:nth-child(1) b').html();
@@ -244,7 +244,7 @@ Screw.Unit(function() {
 
         it("should display observation specific data in a table for numeric observation", function() {
             var searchResult = flowsheetData.searchForConceptId(2);
-            obsInfo.reload(searchResult, $("#positionTest"));
+            obsInfo.reload(searchResult, $("#positionTest"),flowsheetData.datePattern);
             expect($('#obsInfoGrid').find('td:nth-child(1)').html()).to(
                     equal, "2001-01-12"
                     );
@@ -255,7 +255,7 @@ Screw.Unit(function() {
         }),
                 it("should dispay graph for numeric observation", function() {
                     var searchResult = flowsheetData.searchForConceptId(2);
-                    obsInfo.reload(searchResult, $("#positionTest"));
+                    obsInfo.reload(searchResult, $("#positionTest"),flowsheetData.datePattern);
                     expect($('#numericObsGraph').find('canvas').length).to(equal, 2);
                     expect($('#numericObsGraphLegend').find('td:nth-child(2)').html()).to(equal, "Normal Hi");
                     expect($('#numericObsGraphLegend').find('td:nth-child(4)').html()).to(equal, "Normal Low");
@@ -263,13 +263,13 @@ Screw.Unit(function() {
                 }),
                 it("should not dispay graph for non-numeric observation", function() {
                     var searchResult = flowsheetData.searchForConceptId(4);
-                    obsInfo.reload(searchResult, $("#positionTest"));
+                    obsInfo.reload(searchResult, $("#positionTest"),flowsheetData.datePattern);
                     expect($('#numericObsGraph').is(':hidden')).to(be_true);
                     obsInfo.hide();
                 }),
                 it("should display observation specific data in a table for non-numeric observation", function() {
                     var searchResult = flowsheetData.searchForConceptId(4);
-                    obsInfo.reload(searchResult, $("#positionTest"));
+                    obsInfo.reload(searchResult, $("#positionTest"),flowsheetData.datePattern);
                     expect($('#obsInfoGrid').find('td:nth-child(1)').html()).to(
                             equal, "2002-01-12"
                             );
