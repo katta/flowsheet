@@ -13,6 +13,18 @@ Array.prototype.indexOf = function(obj, start) {
     return -1;
 }
 
+var waitMsg = function (field) {
+			  jQuery(field).block({
+              message: 'Loading ....',
+              fadeIn:0,
+             css: {padding:'5px',width:'50%',top: '15px',left: '140px'},centerY:false,centerX:false
+             });
+		};
+
+var stopWaiting=function(field){
+       jQuery(field).unblock();
+}
+
 
 var Flowsheet = function(tableId) {
     this.tableId = tableId;
@@ -281,7 +293,9 @@ var DateRange = function(slider, filterHandler) {
             callback: function(value) {
                 var from = value.split(";")[0];
                 var to = value.split(";")[1];
-                filterHandler.call(null);
+                waitMsg('#flowsheet_grid_div');
+                setTimeout(function(){filterHandler.call();stopWaiting('#flowsheet_grid_div');}, 10);
+
             },
             smooth: false,
             limits :false,
@@ -341,8 +355,14 @@ var ConceptClass = function(list) {
     };
 
     this.change = function(filterHandler) {
-        jQuery("input[name='classTypeCB']").change(filterHandler);
-    }
+        jQuery("input[name='classTypeCB']").change(function(){
+        waitMsg('#flowsheet_grid_div');
+        setTimeout(function(){
+        filterHandler();
+        stopWaiting('#flowsheet_grid_div');
+     }, 10);
+    });
+   }
 
     this.attachSelectClearAll = function(filter) {
         var selectDeselectAll = function(checkedStatus) {
@@ -353,12 +373,14 @@ var ConceptClass = function(list) {
 
         jQuery('#selectAll').click(function() {
             selectDeselectAll(true);
-            filter.call();
+            waitMsg('#flowsheet_grid_div');
+            setTimeout(function(){filter.call();stopWaiting('#flowsheet_grid_div');}, 10);
         })
 
         jQuery('#clearAll').click(function() {
             selectDeselectAll(false);
-            filter.call();
+            waitMsg('#flowsheet_grid_div');
+            setTimeout(function(){filter.call();stopWaiting('#flowsheet_grid_div');}, 10);
         })
     }
 
@@ -394,9 +416,13 @@ var ConceptNameSearch = function(selectElement) {
                 maxshownitems:10,
                 maxitimes:10,
                 onselect:function() {
-                    filter.call();
+                    waitMsg('#flowsheet_grid_div');
+                    setTimeout(function(){filter.call();stopWaiting('#flowsheet_grid_div');}, 10);
                 },
-                onremove:filter
+                onremove:function() {
+                    waitMsg('#flowsheet_grid_div');
+                    setTimeout(function(){filter.call();stopWaiting('#flowsheet_grid_div');}, 10);
+                }
             });
 
         } else {

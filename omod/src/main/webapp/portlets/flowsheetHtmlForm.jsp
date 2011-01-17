@@ -101,14 +101,6 @@
         var jsondata = {
             patientId : patientIdValue
         };
-		var WaitMsg = function (field) {
-			jQuery(field).block({
-				message: 'Loading...'
-					});
-		};
-		var StopWaiting = function (field) {
-		    jQuery(field).unblock();
-		};
 
 
         var flowsheetObj = new Flowsheet("flowsheet");
@@ -118,7 +110,6 @@
                 "#numericObsGraphLegend", "#obsInfoLabel", "#maximizeIcon", "#obsInfoDialog");
 
         var filter = function() {
-			WaitMsg('#flowsheet_grid_div');
             var from = jQuery('#sliderInfoFrom').text();
             var to = jQuery('#sliderInfoTo').text();
             var list = getSearchEntries();
@@ -127,7 +118,6 @@
             conceptNameSearch.render(data.entries, filter);
             flowsheetObj.reload(entries);
             flowsheetObj.createErrorMessage(entries);
-	        StopWaiting('#flowsheet_grid_div');
         }
 
         var dateRange = new DateRange(jQuery("#Slider1"), filter);
@@ -147,9 +137,12 @@
             }
         }
 
-        jQuery("body").click(function() {
+        jQuery("#obsInfoDialog").click(function(){return false});
+
+         jQuery("body").click(function() {
             obsInfo.hide();
         });
+
 
         jQuery("#maximizeIcon").click(function(e) {
             e.stopPropagation();

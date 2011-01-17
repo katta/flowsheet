@@ -8,6 +8,8 @@
 <script type="text/javascript" src="../../main/webapp/resources/date.js"></script>
 <script type="text/javascript" src="../../main/webapp/resources/flowsheet.js"></script>
 <script type="text/javascript" src="scripts/test/sampleFlowsheetData.js"></script>
+<script type="text/javascript" src="../../main/webapp/resources/jquery.blockUI.js"></script>
+
 
 <link rel="stylesheet" type="text/css" media="screen" href="../../main/webapp/resources/ui.jqgrid.css"/>
 <link rel="stylesheet" type="text/css" media="screen" href="scripts/jquery-ui.custom.css"/>
@@ -57,8 +59,10 @@
 
         </td>
         <td class="flowsheet_grid">
-            <table id="flowsheet">
-            </table>
+            <div id="flowsheet_grid_div">
+                <table id="flowsheet">
+                </table>
+            </div>
 
         </td>
 </table>
