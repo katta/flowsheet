@@ -163,13 +163,16 @@
          	conceptNameSearch = new ConceptNameSearch(jQuery("#conceptSelect"));
             conceptNameSearch.render(data.entries, filter);
 			jQuery('#loading').hide();
-            fetchFlowsheetCompleteData();
+            waitMsg('#flowsheet_grid_div');
+            setTimeout(fetchFlowsheetCompleteData(), 10);
+
         };
         
         renderflowsheetComplete = function(json){
         	data.updateData(json);
         	flowsheetObj.reload(data.entries);
             conceptNameSearch.render(data.entries, filter);
+            stopWaiting('#flowsheet_grid_div');
         }
 
         var fetchFlowsheetCompleteData = function(){
