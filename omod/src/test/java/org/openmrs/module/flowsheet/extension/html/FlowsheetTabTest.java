@@ -1,4 +1,4 @@
-package org.openmrs.module.flowsheetmodule;
+package org.openmrs.module.flowsheet.extension.html;
 
 /**
  * The contents of this file are subject to the OpenMRS Public License
@@ -13,19 +13,16 @@ package org.openmrs.module.flowsheetmodule;
  *
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
-//package org.openmrs.module.flowsheetmodule;
 
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.openmrs.module.flowsheet.extension.html.FlowsheetTab;
 
-
-
 /**
  * This test validates the AdminList extension class
  */
-public class PatientDashboardExtensionTest{
+public class FlowsheetTabTest{
 
 	@Test
 	public void testshouldBeWrittenHere(){

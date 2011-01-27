@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <concept concept_id="5090" retired="false" datatype_id="13" class_id="1" is_set="false" creator="1" date_created="2004-08-12 00:00:00.0" version="" uuid="11716f9c-1434-4f8d-b9fc-9aa14c4d6235"/>
+  <concept_name concept_id="5090" name="Leg Xray" locale="en" creator="1" date_created="2008-08-15 13:52:53.0" concept_name_id="2433" concept_name_type="" locale_preferred="0" voided="false" uuid="0631be3b-e338-4505-a876-ef3310f65823"/>
+  <obs obs_id="21" person_id="8" concept_id="5090" encounter_id="5" obs_datetime="2008-08-19 00:00:00.0" location_id="2" value_complex="jpeg image" comments="SampleComment" creator="1" date_created="2008-08-19 12:35:30.0" voided="false" uuid="2ed1e57d-9f18-41d3-b067-2eeaf4a30fa4"/>
+</dataset>

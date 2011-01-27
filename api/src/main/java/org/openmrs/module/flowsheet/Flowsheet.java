@@ -1,51 +1,58 @@
 package org.openmrs.module.flowsheet;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openmrs.api.context.Context;
 
 public class Flowsheet {
 
-	private final List<FlowsheetEntry> entries;
+    private List<FlowsheetEntry> entries;
 
-    private final Map<Integer,ConceptInfo> conceptMap;
+    private Map<String, ConceptInfo> conceptMap;
     private List<String> conceptClasses = null;
-    private final List<String> obsDates = new ArrayList<String>();
-    private SimpleDateFormat format = Context.getDateFormat();
-    private String datePattern;
-	public Flowsheet(List<FlowsheetEntry> flowsheetEntries) {
-        this.entries = flowsheetEntries;
-        this.conceptMap = computeConceptMap(flowsheetEntries);
-        this.datePattern=format.toPattern();
+    private List<String> obsDates = new ArrayList<String>();
+    private String datePattern = Context.getDateFormat().toPattern();
+
+    public Flowsheet() {
+        this.entries = new ArrayList<FlowsheetEntry>();
+        this.conceptMap = new HashMap<String, ConceptInfo>();
     }
 
-    public Flowsheet(List<FlowsheetEntry> flowsheetEntries,List<String> conceptClasses,List<Date> obsDates) {
+    public Flowsheet(List<FlowsheetEntry> flowsheetEntries) {
+        this.entries = flowsheetEntries;
+        this.conceptMap = computeConceptMap(flowsheetEntries);
+    }
+
+    public Flowsheet(List<FlowsheetEntry> flowsheetEntries, List<String> conceptClasses, List<Date> obsDates) {
         this(flowsheetEntries);
         this.conceptClasses = conceptClasses;
-        for(Date obsDate :obsDates){
-            this.obsDates.add(format.format(obsDate));
+        for (Date obsDate : obsDates) {
+            this.obsDates.add(Context.getDateFormat().format(obsDate));
         }
     }
 
-	public List<FlowsheetEntry> getEntries() {
-		return entries;
-	}
+    public List<FlowsheetEntry> getEntries() {
+        return entries;
+    }
 
-    public Map<Integer, ConceptInfo> getConceptMap(){
+    public Map<String, ConceptInfo> getConceptMap() {
         return conceptMap;
     }
 
-    private Map<Integer,ConceptInfo> computeConceptMap(List<FlowsheetEntry> flowsheetEntries){
+    private Map<String, ConceptInfo> computeConceptMap(List<FlowsheetEntry> flowsheetEntries) {
 
-       Map<Integer, ConceptInfo> conceptMap = new HashMap<Integer, ConceptInfo>();
+        Map<String, ConceptInfo> conceptMap = new HashMap<String, ConceptInfo>();
 
-       for(FlowsheetEntry entry : flowsheetEntries){
-           if(!conceptMap.containsKey(entry.getConceptId())){
-               conceptMap.put(entry.getConceptId(),new ConceptInfo(entry.returnObs()));
-           }
-       }
-       return conceptMap;
+        for (FlowsheetEntry entry : flowsheetEntries) {
+            if (!conceptMap.containsKey(entry.getConceptId())) {
+                conceptMap.put(entry.getConceptId().toString(), new ConceptInfo(entry.returnObs()));
+            }
+        }
+        return conceptMap;
     }
 
     public List<String> getConceptClasses() {
@@ -56,8 +63,7 @@ public class Flowsheet {
         return obsDates;
     }
 
-    public String getDatePattern(){
+    public String getDatePattern() {
         return datePattern;
     }
-
 }

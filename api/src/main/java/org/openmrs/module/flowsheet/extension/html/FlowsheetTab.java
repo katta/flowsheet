@@ -24,13 +24,11 @@ public class FlowsheetTab extends PatientDashboardTabExt {
 	
 	@Override
 	public String getTabName() {
-		// TODO Auto-generated method stub
 		return "Flowsheet";
 	}
 
 	@Override
 	public String getTabId() {
-		// TODO Auto-generated method stub
 		return "7";
 	}
 

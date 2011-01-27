@@ -1,7 +1,6 @@
 package org.openmrs.module.flowsheet;
 
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
@@ -19,7 +18,7 @@ public class FlowsheetEntry {
 
 
     public String getValue() {
-        return obs.getValueAsString(Locale.ENGLISH);
+        return obs.getValueAsString(Context.getLocale());
     }
 
     public String getDate() {

@@ -5,16 +5,21 @@ import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
 import org.openmrs.Obs;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import java.util.Locale;
+
+import org.openmrs.api.context.Context;
 
 public class ConceptInfo {
     private Concept concept;
     private Integer obsId;
+    
+    public ConceptInfo() {
+        
+    }
+    
     public ConceptInfo(Obs obs) {
         if(obs != null){
             this.concept = obs.getConcept();
@@ -26,20 +31,20 @@ public class ConceptInfo {
     }
 
     public String getShortName(){
-        return getConceptNameAsString(concept.getShortNameInLocale(Locale.ENGLISH));
+        return getConceptNameAsString(concept.getShortNameInLocale(Context.getLocale()));
     }
 
     public String getName(){
-        return getConceptNameAsString(concept.getName(Locale.ENGLISH));
+        return getConceptNameAsString(concept.getName(Context.getLocale()));
     }
 
     private String getConceptNameAsString(ConceptName name) {
         return name != null ?  name.getName(): "";
     }
 
-    public Collection<String> getSynonyms(){
-        Collection<ConceptName> synonyms = concept.getSynonyms();
-        Collection<String> synonymNames = new ArrayList<String>();
+    public List<String> getSynonyms(){
+        Collection<ConceptName> synonyms = concept.getSynonyms(Context.getLocale());
+        List<String> synonymNames = new ArrayList<String>();
         if(synonyms != null){
             for(ConceptName name: synonyms){
                 synonymNames.add(name.getName());

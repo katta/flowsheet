@@ -519,7 +519,7 @@ var ObsInfo = function(obsInfoElem, numericObsInfoGrid, numericObsGraph, numeric
         renderObsInfoGrid(entries, "lightPro", requiredKey);
     }
 
-    this.reload = function(entries, positionTargetElem,datePattern) {
+    this.reload = function(entries, positionTargetElem, datePattern) {
         jQuery(obsInfoElem).attr("class", "obsInfoPanel");
         jQuery(obsInfoLabel).show();
         jQuery(maximizeIcon).show();
