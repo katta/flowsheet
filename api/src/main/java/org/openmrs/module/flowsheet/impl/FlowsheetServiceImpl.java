@@ -31,11 +31,13 @@ public class FlowsheetServiceImpl implements FlowsheetService {
 
     public Flowsheet getFlowsheetSnapshot(int personId) {
         Query query = factory
-				.getCurrentSession()
-				.createQuery(
-                        "select distinct c.conceptClass.name from Concept c " +
-                        "where c.conceptId in " +
-                        "( select distinct o1.concept.conceptId from Obs o1 where o1.personId = :id and o1.voided = 0)");
+				.getCurrentSession().
+						createQuery("select distinct c1.conceptClass.name from Concept c1, Obs o1 " +
+						"where " +
+						"c1.conceptId = o1.concept.conceptId and " +
+						"o1.personId = :id and " +
+						"o1.voided = 0 " 
+						);
         query.setInteger("id",personId);
 		List<String> conceptClasses = query.list();
         query = factory
@@ -45,18 +47,19 @@ public class FlowsheetServiceImpl implements FlowsheetService {
                                 "where o.personId = :id and o.voided = 0 order by o.obsDatetime asc");//
         query.setInteger("id",personId);
 		List<Date> obsDates = query.list();
-        String firstFewDates = "''";
+        String firstDate = "''";
+        String secondDate="''";
         if(obsDates.size() >0){
-            firstFewDates = "'"+format.format(obsDates.get(obsDates.size()-1))+"'";
+        	firstDate = "'"+format.format(obsDates.get(obsDates.size()-1))+"'";
         }
         if(obsDates.size() >1){
-            firstFewDates = firstFewDates + ",'"+format.format(obsDates.get(obsDates.size()-2))+"'";
+        	secondDate = "'"+format.format(obsDates.get(obsDates.size()-2))+"'";
         }
         query = factory
 				.getCurrentSession()
 				.createQuery(
 						"select o1 from Obs o1 where o1.personId = :id and o1.voided = 0 " +
-                        "and o1.obsDatetime in ("+firstFewDates+")");
+                        "and o1.obsDatetime ="+firstDate+" or o1.obsDatetime ="+secondDate+"");
         query.setInteger("id",personId);
 
         List<Obs> obsList = query.list();
