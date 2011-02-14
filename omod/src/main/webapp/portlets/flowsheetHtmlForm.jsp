@@ -64,10 +64,9 @@
 
         </td>
         <td class="flowsheet_grid" id="flowsheet_grid">
-            <div id="flowsheet_grid_div">
-			<table id="flowsheet" class="flowsheet">
+			<table id="flowsheet_grid_div" class="flowsheet">
             </table>
-            </div>
+            <div id="pageScroller" style="display:none;"></div>
 		</td>
 	</tr>
 </table>
@@ -102,8 +101,7 @@
             patientId : patientIdValue
         };
 
-
-        var flowsheetObj = new Flowsheet("flowsheet");
+        var flowsheetObj = new Flowsheet("flowsheet_grid_div","#pageScroller");
         var data = {};
         var classes = new ConceptClass("#classTypeList");
         var obsInfo = new ObsInfo("#obsInfo", "#obsInfoGrid", "#numericObsGraph",
@@ -126,11 +124,11 @@
 
         var onClickHandlerForGrid = function(rowid, iCol, cellcontent, e) {
             e.stopPropagation();
-            var conceptId = jQuery("#flowsheet").find("#"+rowid).find('td:nth-child(5)').html();
+            var conceptId = jQuery("#flowsheet_grid_div").find("#"+rowid).find('td:nth-child(5)').html();
             if(data.isConceptComplex(conceptId)==null){
             jQuery('#obsInfoDialog').show();
             var searchResult = data.searchForConceptId(conceptId);
-            obsInfo.reload(searchResult,jQuery("#flowsheet").find("#"+rowid),data.datePattern);
+            obsInfo.reload(searchResult,jQuery("#flowsheet_grid_div").find("#"+rowid),data.datePattern);
             obsInfo.setConceptDesc("#conceptDesc",data.getConceptDesc(conceptId));
             }else{
                 jQuery('#obsInfoDialog').hide();
@@ -164,7 +162,7 @@
             conceptNameSearch.render(data.entries, filter);
 			jQuery('#loading').hide();
             waitMsg('#flowsheet_grid_div');
-            setTimeout(fetchFlowsheetCompleteData(), 10);
+            setTimeout(fetchFlowsheetCompleteData, 10);
 
         };
         

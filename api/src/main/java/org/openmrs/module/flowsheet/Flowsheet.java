@@ -22,17 +22,16 @@ public class Flowsheet {
         this.conceptMap = new HashMap<String, ConceptInfo>();
     }
 
-    public Flowsheet(List<FlowsheetEntry> flowsheetEntries) {
+    public Flowsheet(List<FlowsheetEntry> flowsheetEntries, Map<String, ConceptInfo> conceptMap) {
         this.entries = flowsheetEntries;
-        this.conceptMap = computeConceptMap(flowsheetEntries);
+        this.conceptMap =conceptMap;
     }
 
-    public Flowsheet(List<FlowsheetEntry> flowsheetEntries, List<String> conceptClasses, List<Date> obsDates) {
-        this(flowsheetEntries);
+    public Flowsheet(List<FlowsheetEntry> flowsheetEntries, List<String> conceptClasses, List<String> obsDates,Map<String, ConceptInfo> conceptMap) {
+        this(flowsheetEntries,conceptMap);
         this.conceptClasses = conceptClasses;
-        for (Date obsDate : obsDates) {
-            this.obsDates.add(Context.getDateFormat().format(obsDate));
-        }
+        this.obsDates = obsDates;
+        
     }
 
     public List<FlowsheetEntry> getEntries() {
@@ -43,17 +42,6 @@ public class Flowsheet {
         return conceptMap;
     }
 
-    private Map<String, ConceptInfo> computeConceptMap(List<FlowsheetEntry> flowsheetEntries) {
-
-        Map<String, ConceptInfo> conceptMap = new HashMap<String, ConceptInfo>();
-
-        for (FlowsheetEntry entry : flowsheetEntries) {
-            if (!conceptMap.containsKey(entry.getConceptId())) {
-                conceptMap.put(entry.getConceptId().toString(), new ConceptInfo(entry.returnObs()));
-            }
-        }
-        return conceptMap;
-    }
 
     public List<String> getConceptClasses() {
         return conceptClasses;

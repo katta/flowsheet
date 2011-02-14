@@ -11,6 +11,10 @@ public class FlowsheetEntry {
     private Obs obs;
     private int rowNumber;
 
+    public FlowsheetEntry(){
+        
+    }
+    
     public FlowsheetEntry(int rowNumber, Obs obs) {
         this.rowNumber = rowNumber;
         this.obs = obs;

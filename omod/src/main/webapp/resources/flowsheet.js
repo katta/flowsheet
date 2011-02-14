@@ -26,9 +26,10 @@ var stopWaiting=function(field){
 }
 
 
-var Flowsheet = function(tableId) {
+var Flowsheet = function(tableId,pageScrollerId) {
     this.tableId = tableId;
-
+    this.pageScrollerId=pageScrollerId;	
+    
     hideColumnHeaders = function() {
         jQuery('.ui-jqgrid-hdiv').hide();
         jQuery('.jqgroup td').attr('colspan', 3);
@@ -49,11 +50,12 @@ var Flowsheet = function(tableId) {
         jQuery("#" + tableId).jqGrid({
             data: entries,
             datatype: "local",
-            height: 'auto',
-            rowNum: 10000000,
+            height: '500',
+            rowNum: 150,
+            scroll:true,
             colModel:[
-                {name:'date', width:150, sorttype:'date',sortorder:'desc', datefmt:datePattern,  klass:'firstCol'},
-                {name:'name', width:180,formatter:nameFormatter},
+                {name:'date', width:80, sorttype:'date',sortorder:'desc', datefmt:datePattern,  klass:'firstCol'},
+                {name:'name', width:220,formatter:nameFormatter},
                 {name:'value',width:100,formatter:valueFormatter},
                 {name:'low',width:100,formatter:rangeFormatter},
                 {name:'conceptId',hidden: true },
@@ -62,12 +64,13 @@ var Flowsheet = function(tableId) {
             sortname: 'date',
             altRows:true,
             altclass:'row_odd',
-            grouping:true,
-            width:530,
+            width:600,
             onCellSelect:onClickHandlerForGrid,
             groupingView : { groupField : ['date'], groupColumnShow : [false], groupText : ['<b>{0}</b>'], groupCollapse : true, groupOrder: ['desc'], groupCollapse : false },
             hoverrows:false,
             viewrecords: false,
+            pager:this.pageScrollerId,
+            emptyrecords:"No records to view",
             loadComplete:hideColumnHeaders
         });
         createSearchToolBar();
