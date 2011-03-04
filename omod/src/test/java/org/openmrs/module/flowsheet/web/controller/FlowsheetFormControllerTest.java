@@ -36,35 +36,4 @@ public class FlowsheetFormControllerTest extends BaseModuleContextSensitiveTest 
         Assert.assertEquals(7, flowsheet.getEntries().size());
     }
 
-    @Test
-    public void shouldReturnFlowsheetSnapshotForPatientForLastTwoDates() {
-        ModelMap map = new ModelMap();
-        new FlowsheetFormController().loadFlowsheetSnapshot(8, map);
-        String flowsheetJson = (String) map.get("flowsheetJson");
-        Assert.assertEquals(
-                "{\"flowsheet\":{\"conceptClasses\":[\"Test\"],\"conceptMap\":{\"5090\":{\"classType\":\"Test\"" +
-                        ",\"dataType\":\"Complex\",\"desc\":null,\"imageId\":\"22\",\"name\":\"Leg Xray\",\"numeric\":nul" +
-                        "l,\"shortName\":\"\",\"synonyms\":[]}},\"datePattern\":\"dd/MM/yyyy\",\"entries\":[{\"comment" +
-                        "\":\"SampleComment\",\"conceptId\":5090,\"date\":\"19/08/2008\",\"rowNumber\":1,\"value\":\"jp" +
-                        "eg image\"},{\"comment\":\"SampleComment\",\"conceptId\":5090,\"date\":\"18/08/2008\",\"rowN" +
-                        "umber\":2,\"value\":\"jpeg image\"}],\"obsDates\":[\"17/08/2008\",\"18/08/2008\",\"19/08/200" +
-                        "8\"]}}", flowsheetJson);
-    }
-
-    @Test
-    public void shouldReturnFlowsheetJsonForPatient() {
-        ModelMap map = new ModelMap();
-        new FlowsheetFormController().loadFlowsheet(8, map);
-        String flowsheetJson = (String) map.get("flowsheetJson");
-        Assert.assertEquals(
-                "{\"flowsheet\":{\"conceptClasses\":null,\"conceptMap\":{\"5090\":{\"classType\":\"Test\",\"da" +
-                        "taType\":\"Complex\",\"desc\":null,\"imageId\":\"23\",\"name\":\"Leg Xray\",\"numeric\":null,\"s" +
-                        "hortName\":\"\",\"synonyms\":[]}},\"datePattern\":\"dd/MM/yyyy\",\"entries\":[{\"comment\":\"S" +
-                        "ampleComment\",\"conceptId\":5090,\"date\":\"19/08/2008\",\"rowNumber\":1,\"value\":\"jpeg " +
-                        "image\"},{\"comment\":\"SampleComment\",\"conceptId\":5090,\"date\":\"18/08/2008\",\"rowNumbe" +
-                        "r\":2,\"value\":\"jpeg image\"},{\"comment\":\"SampleComment\",\"conceptId\":5090,\"date\":\"1" +
-                        "7/08/2008\",\"rowNumber\":3,\"value\":\"jpeg image\"}],\"obsDates\":[]}}", flowsheetJson);
-
-
-    }
 }
