@@ -471,8 +471,8 @@ var ObsInfo = function(obsInfoElem, numericObsInfoGrid, numericObsGraph, numeric
         var array = entries;
         var str = '<table class="' + theme + '">';
         str += '<thead><tr>';
-        for (var index in requiredKey) {
-            str += '<th scope="col">' + requiredKey[index] + '</th>';
+        for(var index=0;index<requiredKey.length;index++){
+              str += '<th scope="col">' + requiredKey[index] + '</th>';
         }
         str += '</tr></thead>';
 
@@ -480,7 +480,7 @@ var ObsInfo = function(obsInfoElem, numericObsInfoGrid, numericObsGraph, numeric
         for (var i = 0; i < array.length; i++) {
             row_class = (i % 2 == 0) ? 'class="alt"' : '';
             str += '<tr id="' + array[i].rowNumber + '" ' + row_class + ' >';
-            for (var key in requiredKey) {
+             for (var key=0;key<requiredKey.length;key++) {
                 var keyToLook = requiredKey[key];
                 str += '<td>' + array[i][keyToLook] + '</td>';
             }

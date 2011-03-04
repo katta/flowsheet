@@ -63,12 +63,12 @@ public class FlowsheetServiceImpl implements FlowsheetService {
 
 	private List<Obs> getObsList(int personId, String firstDate,
 			String secondDate) {
-		Query query2 = factory.getCurrentSession().createQuery(
-				"select o1 from Obs o1 where o1.personId = :id and o1.voided = 0 "
-						+ "and o1.obsDatetime =" + firstDate
-						+ " or o1.obsDatetime =" + secondDate + "");
-		query2.setInteger("id", personId);
-		return query2.list();
+        Query query2 = factory.getCurrentSession().createQuery(
+                    "select o1 from Obs o1 where (o1.personId = :id and o1.voided = 0 and (o1.obsDatetime = "+firstDate +
+                            " or o1.obsDatetime ="+secondDate+"))");
+            query2.setInteger("id", personId);
+            return query2.list();
+
 	}
 
 	private List<Date> getObsDates(int personId) {
