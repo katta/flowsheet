@@ -21,7 +21,7 @@
 
 
 <input type="hidden" id="patientId" name="patientId" value='<request:parameter name="patientId" />'/>
-<div id="loading" class="loading"><img src="moduleResources/flowsheet/loading.gif" alt="Loading..."/></div>
+<div id="loading" class="loading" loaded="false"><img src="moduleResources/flowsheet/loading.gif" alt="Loading..."/></div>
 <table class="table_group" id="table_group" style="display:none">
 
 	<tr>
@@ -84,6 +84,7 @@
     <div id="imageDialog" title="Image">
     </div>
 
+
 <script type="text/javascript"><!--
     
     jQuery("#imageDialog").dialog({
@@ -94,8 +95,9 @@
            jQuery("#imageDialog").html("<img src='"+imgPath+"'/>");
            jQuery('#imageDialog').dialog('open');
     }
-    jQuery(document).ready(function() {
 
+
+     jQuery(window).load(function(){
         var patientIdValue = $j('#patientId').val();
         var jsondata = {
             patientId : patientIdValue
@@ -152,6 +154,7 @@
 
         renderflowsheet = function(json) {
             data = new FlowsheetData(json);
+            jQuery("#loading").attr("loaded","true")
             flowsheetObj.render(data.entries, onClickHandlerForGrid, data.datePattern);
             classes.render(data.getConceptClasses());
             classes.change(filter);
@@ -182,14 +185,29 @@
             });
         	
         }
-        
-        $j.ajax({
-            url : "flowsheetSnapshot.json",
-            data : jsondata,
-            success : renderflowsheet,
-            dataType : "json"
-        });
 
+      var fetchFlowsheetSnapShot = function(){
+                  $j.ajax({
+                        url : "flowsheetSnapshot.json",
+                        data : jsondata,
+                        success : renderflowsheet,
+                        dataType : "json"
+                    });
+
+            }
+
+          //start up call - calls on refresh/on load
+          if((jQuery('#loading').is(':visible')) && (jQuery("#loading").attr("loaded")=="false")){
+                fetchFlowsheetSnapShot();
+        }
+
+        //the Ajax call has to be made on tab click also
+        jQuery("#flowsheetTab").click(function(){
+        var loaded=jQuery("#loading").attr("loaded")
+        if(loaded=="false"){
+                  fetchFlowsheetSnapShot();
+             }
+           });
 
         var getSearchEntries = function() {
             var list = []

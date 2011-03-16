@@ -35,12 +35,12 @@
 	 /AOP -->
 	
 	
-	<!-- Required Privileges 
+	<!-- Required Privileges /Required Privileges -->
 	<privilege>
-		<name>@MODULE_NAME@</name>
-		<description>Allows user to access Form Entry pages/functions</description>
+		<name>Patient Dashboard - View Flowsheet Section</name>
+		<description>Allows user to view  Flowsheet Tab in Patient dashboard</description>
 	</privilege>
-	 /Required Privileges -->
+
 
 
 	<!-- Required Global Properties 

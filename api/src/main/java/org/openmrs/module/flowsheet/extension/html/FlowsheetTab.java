@@ -29,12 +29,14 @@ public class FlowsheetTab extends PatientDashboardTabExt {
 
 	@Override
 	public String getTabId() {
-		return "7";
+		return "flowsheet";
 	}
+
+
 
 	@Override
 	public String getRequiredPrivilege() {
-		return "View Patients";
+        return "Patient Dashboard - View Flowsheet Section";
 	}
 
 	@Override
