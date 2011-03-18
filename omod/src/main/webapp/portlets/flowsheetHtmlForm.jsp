@@ -85,7 +85,7 @@
     </div>
 
 
-<script type="text/javascript"><!--
+<script type="text/javascript">
     
     jQuery("#imageDialog").dialog({
              bgiframe: true, autoOpen: false, width:'auto', height:'auto', modal: true
@@ -220,5 +220,5 @@
             return list
         }
     });
---></script>
+</script>
 
