@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>flowsheet</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Flowsheet Module</name>
 	<description>Parent project for Flowsheet Module</description>
