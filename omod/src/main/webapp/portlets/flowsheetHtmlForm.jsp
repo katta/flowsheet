@@ -3,7 +3,6 @@
 <openmrs:htmlInclude file="/moduleResources/flowsheet/grid.locale-en.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/jquery.jqGrid.min.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/date.js"/>
-<openmrs:htmlInclude file="/moduleResources/flowsheet/jquery-ui-1.8.2.custom.min.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/flowsheet.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/ui.multiselect.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/fcbkcomplete_2_75.js"/>
@@ -16,7 +15,6 @@
 <openmrs:htmlInclude file="/moduleResources/flowsheet/jquery.dependClass.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/jquery.slider-min.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/excanvas.js"/>
-<openmrs:htmlInclude file="/moduleResources/flowsheet/jquery.flot.js"/>
 <openmrs:htmlInclude file="/moduleResources/flowsheet/jquery.blockUI.js"/>
 
 
